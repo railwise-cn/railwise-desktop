@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "survey": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tsx",
+        "./survey-mcp/src/index.ts"
+      ]
+    }
+  }
+}
