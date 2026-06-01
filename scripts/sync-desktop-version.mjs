@@ -20,6 +20,7 @@ if (!/^\d+\.\d+\.\d+(-[\w.-]+)?(\+[\w.-]+)?$/.test(version)) {
 
 const tauriConfPath = join(repoRoot, "desktop/src-tauri/tauri.conf.json");
 const cargoTomlPath = join(repoRoot, "desktop/src-tauri/Cargo.toml");
+const rootPkgPath = join(repoRoot, "package.json");
 const desktopPkgPath = join(repoRoot, "desktop/package.json");
 
 // MSI bundler rejects pre-release identifiers — Windows installer versions
@@ -49,7 +50,12 @@ const desktopPkg = JSON.parse(readFileSync(desktopPkgPath, "utf8"));
 desktopPkg.version = version;
 writeFileSync(desktopPkgPath, `${JSON.stringify(desktopPkg, null, 2)}\n`);
 
+const rootPkg = JSON.parse(readFileSync(rootPkgPath, "utf8"));
+rootPkg.version = version;
+writeFileSync(rootPkgPath, `${JSON.stringify(rootPkg, null, 2)}\n`);
+
 console.log(`Synced desktop version → ${version}`);
 console.log(`  ${tauriConfPath}`);
 console.log(`  ${cargoTomlPath}`);
 console.log(`  ${desktopPkgPath}`);
+console.log(`  ${rootPkgPath}`);

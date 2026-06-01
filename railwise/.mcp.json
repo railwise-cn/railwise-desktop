@@ -1,11 +1,9 @@
 {
   "mcpServers": {
     "survey": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "tsx",
-        "./survey-mcp/src/index.ts"
+        "./survey-mcp/dist/index.js"
       ]
     }
   }

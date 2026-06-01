@@ -65,11 +65,11 @@ fn install_tray(app: &mut tauri::App) -> tauri::Result<()> {
     let menu = MenuBuilder::new(app)
         .text(TRAY_MENU_SHOW, "Show Window")
         .separator()
-        .text(TRAY_MENU_QUIT, "Quit 睿威智测 RAILWISE")
+        .text(TRAY_MENU_QUIT, "Quit 睿威智测 RAILWISE DeepSeek版")
         .build()?;
 
     let mut tray = TrayIconBuilder::with_id("main")
-        .tooltip("睿威智测 RAILWISE")
+        .tooltip("睿威智测 RAILWISE DeepSeek版")
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_menu_event(|app, event| match event.id().as_ref() {

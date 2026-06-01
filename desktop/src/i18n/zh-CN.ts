@@ -75,7 +75,7 @@ export const zhCN: typeof en = {
     mcpStatusOpened: "已打开 MCP 状态面板",
     mcpRetryNone: "没有失败的 MCP 需要重试",
     mcpRetryQueued: "已重试 {count} 个失败的 MCP",
-    aboutLine: "睿威智测 RAILWISE v{version} · 工程测绘智能体",
+    aboutLine: "睿威智测 RAILWISE DeepSeek 版 v{version} · 工程测绘智能体",
   },
   composer: {
     busy: "睿威智测 正在思考…",

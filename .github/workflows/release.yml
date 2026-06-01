@@ -86,6 +86,11 @@ jobs:
       - name: Build CLI bundle (dist/)
         run: npm run build
 
+      - name: Build bundled Railwise engineering workspace
+        run: |
+          npm --prefix railwise/survey-mcp ci
+          npm --prefix railwise/survey-mcp run build
+
       - name: Install desktop deps
         working-directory: desktop
         run: npm ci
@@ -133,7 +138,7 @@ jobs:
         with:
           projectPath: desktop
           tagName: ${{ steps.tag.outputs.name }}
-          releaseName: 睿威智测 RAILWISE ${{ steps.tag.outputs.name }}
+          releaseName: 睿威智测 RAILWISE DeepSeek 版 ${{ steps.tag.outputs.name }}
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target.tauri }}
@@ -150,7 +155,7 @@ jobs:
         with:
           projectPath: desktop
           tagName: ${{ steps.tag.outputs.name }}
-          releaseName: 睿威智测 RAILWISE ${{ steps.tag.outputs.name }}
+          releaseName: 睿威智测 RAILWISE DeepSeek 版 ${{ steps.tag.outputs.name }}
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target.tauri }}
@@ -171,7 +176,7 @@ jobs:
         with:
           projectPath: desktop
           tagName: ${{ steps.tag.outputs.name }}
-          releaseName: 睿威智测 RAILWISE ${{ steps.tag.outputs.name }}
+          releaseName: 睿威智测 RAILWISE DeepSeek 版 ${{ steps.tag.outputs.name }}
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target.tauri }}
