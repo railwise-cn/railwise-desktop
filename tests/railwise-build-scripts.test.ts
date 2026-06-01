@@ -11,6 +11,14 @@ describe("bundled Railwise engineering workspace build wiring", () => {
     expect(pkg.scripts?.build).toMatch(/^npm run build:survey && /);
   });
 
+  it("runs the desktop frontend build during root verification", () => {
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(pkg.scripts?.verify).toContain("npm --prefix desktop run build");
+  });
+
   it("installs survey-mcp dependencies during checkout postinstall", () => {
     const postinstall = readFileSync("scripts/postinstall.mjs", "utf8");
 

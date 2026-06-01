@@ -43,6 +43,7 @@ function renderPanel() {
       sessionFiles={[{ path: "src/new-file.ts", status: "m" }]}
       memory={[]}
       memoryDetail={null}
+      railwiseReadiness={[]}
       onReadMemory={() => {}}
     />,
   );
@@ -83,6 +84,7 @@ describe("ContextPanel files", () => {
         sessionFiles={[]}
         memory={[]}
         memoryDetail={null}
+        railwiseReadiness={[]}
         onReadMemory={() => {}}
       />,
     );
@@ -101,6 +103,7 @@ describe("ContextPanel files", () => {
         sessionFiles={[]}
         memory={[]}
         memoryDetail={null}
+        railwiseReadiness={[]}
         activeTab="tools"
         activeTabNonce={1}
         onReadMemory={() => {}}
@@ -121,6 +124,7 @@ describe("ContextPanel files", () => {
         sessionFiles={[]}
         memory={[]}
         memoryDetail={null}
+        railwiseReadiness={[]}
         activeTab="tools"
         activeTabNonce={2}
         onReadMemory={() => {}}
