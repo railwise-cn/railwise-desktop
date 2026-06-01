@@ -138,6 +138,7 @@ import type { ChoiceOption } from "../../tools/choice.js";
 import type { ChatMessage } from "../../types.js";
 import { VERSION } from "../../version.js";
 import { type McpRuntime, createMcpRuntime } from "./mcp-runtime.js";
+import { loadDotMcpJson } from "../../mcp/dot-mcp-json.js";
 
 export interface DesktopOptions {
   model: string;
@@ -172,6 +173,25 @@ function defaultRailwiseWorkspace(): string | undefined {
     cur = parent;
   }
   return undefined;
+}
+
+function resolveInitialWorkspace(initialDir?: string, optionDir?: string): string {
+  const bundled = defaultRailwiseWorkspace();
+  if (initialDir && resolve(initialDir) !== resolve("/")) return resolve(initialDir);
+  if (initialDir && bundled) return resolve(bundled);
+  if (optionDir) return resolve(optionDir);
+  const saved = loadWorkspaceDir();
+  if (saved && resolve(saved) !== resolve("/")) return resolve(saved);
+  if (bundled) return resolve(bundled);
+  if (saved) return resolve(saved);
+  return resolve(process.cwd());
+}
+
+function configWithProjectMcp(projectRoot: string): ReasonixConfig {
+  const cfg = readConfig();
+  const project = loadDotMcpJson(projectRoot);
+  if (!project) return cfg;
+  return { ...cfg, mcpServers: { ...(cfg.mcpServers ?? {}), ...project } };
 }
 
 export function desktopUserAbortLoopOptions(): LoopAbortOptions | undefined {
@@ -1237,7 +1257,7 @@ function mcpToolsForSummary(
 }
 
 function emitMcpSpecs(tab: Tab): void {
-  const cfg = readConfig();
+  const cfg = configWithProjectMcp(tab.rootDir);
   const allSpecs = normalizeMcpConfig(cfg);
   const summaries = new Map(
     (tab.mcpRuntime?.summaries() ?? []).map((summary) => [summary.spec, summary]),
@@ -2084,9 +2104,7 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
 
   /** Synchronous tab construction — no I/O. All cheap, disk-only events (`$settings`, `$sessions`, `$memory`, `$skills`, `$mcp_specs`) can fire against this immediately. The heavy bits (`buildCodeToolset`, MCP probes, runtime construction) happen in `initTabToolset` so the UI shell paints without waiting for them. */
   function createTabSkeleton(initialDir?: string): Tab {
-    const dir = resolve(
-      initialDir ?? opts.dir ?? loadWorkspaceDir() ?? defaultRailwiseWorkspace() ?? process.cwd(),
-    );
+    const dir = resolveInitialWorkspace(initialDir, opts.dir);
     pushRecentWorkspace(dir);
     const model = opts.model || loadModel() || DEFAULT_MODEL;
     const tab: Tab = {
@@ -2148,7 +2166,7 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
           emit({ type: "$error", message: `mcp reload failed: ${(err as Error).message}` }, tab.id);
         });
     }
-    const allSpecs = getAllMcpSpecs(readConfig());
+    const allSpecs = getAllMcpSpecs(configWithProjectMcp(tab.rootDir));
     const requested = allSpecs.length;
     if (requested === 0) return Promise.resolve();
     const runtime = createMcpRuntime({
@@ -2158,13 +2176,14 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
       },
       getMcpPrefix: () => undefined,
       getRequestedCount: () => requested,
+      getConfig: () => configWithProjectMcp(tab.rootDir),
       getWorkspaceDir: () => tab.rootDir,
       progressSink: { current: null },
     });
     tab.mcpRuntime = runtime;
     runtime.setLifecycleSink((notice) => {
       if (notice.kind === "slow") return; // not surfaced in the desktop panel
-      const specs = getAllMcpSpecs(readConfig());
+      const specs = getAllMcpSpecs(configWithProjectMcp(tab.rootDir));
       const target = specs.find((raw) => {
         try {
           return parseMcpSpec(raw).name === notice.name;

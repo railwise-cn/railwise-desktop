@@ -1,4 +1,4 @@
-import { normalizeMcpConfig, readConfig } from "../../config.js";
+import { type ReasonixConfig, normalizeMcpConfig, readConfig } from "../../config.js";
 import { t } from "../../i18n/index.js";
 import type { CacheFirstLoop } from "../../loop.js";
 import { McpClient } from "../../mcp/client.js";
@@ -35,6 +35,7 @@ export interface RuntimeContext {
   getTools: () => ToolRegistry | undefined;
   getMcpPrefix: () => string | undefined;
   getRequestedCount: () => number;
+  getConfig?: () => ReasonixConfig;
   getWorkspaceDir?: () => string | undefined;
   progressSink: { current: ((info: ProgressInfo) => void) | null };
 }
@@ -155,7 +156,7 @@ export function createMcpRuntime(ctx: RuntimeContext): McpRuntime {
     failureMap.delete(raw);
     const tools = ctx.getTools();
     if (!tools) return { ok: false, reason: "no tool registry available" };
-    const cfg = readConfig();
+    const cfg = ctx.getConfig?.() ?? readConfig();
     const normalized = normalizeMcpConfig(cfg);
     let label = "anon";
     let mcp: McpClient | undefined;
@@ -347,7 +348,7 @@ export function createMcpRuntime(ctx: RuntimeContext): McpRuntime {
     failed: Array<{ spec: string; reason: string }>;
     summaries: McpServerSummary[];
   }> {
-    const normalized = normalizeMcpConfig(readConfig());
+    const normalized = normalizeMcpConfig(ctx.getConfig?.() ?? readConfig());
     const desired = normalized.map(specToRaw);
     const desiredSet = new Set(desired);
     const currentSet = new Set(records.keys());
