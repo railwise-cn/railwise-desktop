@@ -150,7 +150,7 @@ export function detectInstallSource(bin?: string): InstallSource {
   if (/\/\.bun\//.test(norm) || /\/bun\/install\//.test(norm)) return "bun";
   if (/\/pnpm\/global\//.test(norm) || /\/pnpm\/[^/]+\/node_modules\//.test(norm)) return "pnpm";
   if (/\/yarn\/global\//.test(norm) || /\/\.yarn\/global\//.test(norm)) return "yarn";
-  if (/\/node_modules\/reasonix(\b|\/)/.test(norm)) return "npm";
+  if (/\/node_modules\/(?:reasonix|railwise)(\b|\/)/.test(norm)) return "npm";
   return "unknown";
 }
 
@@ -164,9 +164,9 @@ export function detectNpmInstallPrefix(bin?: string): string | null {
   const raw = bin ?? process.argv[1] ?? "";
   if (!raw) return null;
   const norm = raw.replace(/\\/g, "/");
-  const posix = norm.match(/^(.+?)\/lib\/node_modules\/reasonix(?:\/|$)/i);
+  const posix = norm.match(/^(.+?)\/lib\/node_modules\/(?:reasonix|railwise)(?:\/|$)/i);
   if (posix) return posix[1] ?? null;
-  const win = norm.match(/^(.+?)\/node_modules\/reasonix(?:\/|$)/i);
+  const win = norm.match(/^(.+?)\/node_modules\/(?:reasonix|railwise)(?:\/|$)/i);
   if (win) return win[1] ?? null;
   return null;
 }

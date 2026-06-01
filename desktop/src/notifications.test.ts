@@ -59,7 +59,7 @@ describe("desktop notifications", () => {
     expect(notifications).toEqual([
       {
         kind: "approval",
-        title: "Railwise is waiting for approval",
+        title: "RAILWISE is waiting for approval",
         body: "Command: git push",
       },
     ]);
@@ -94,7 +94,7 @@ describe("desktop notifications", () => {
     expect(notifications).toEqual([
       {
         kind: "turn_complete",
-        title: "Railwise task complete",
+        title: "RAILWISE task complete",
         body: "The current task finished and is ready for review.",
       },
     ]);

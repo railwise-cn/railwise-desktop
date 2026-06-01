@@ -137,7 +137,7 @@ export const de: typeof en = {
     themeStyleGraphite: "Graphit",
     themeStyleGraphiteDesc: "Originale dunkle Palette mit neutralen Graphit-Panels.",
     themeStyleEmber: "Ember",
-    themeStyleEmberDesc: "Warme dunkle Palette mit stärkerem Reasonix-Orange.",
+    themeStyleEmberDesc: "Warme dunkle Palette mit stärkerem Railwise-Orange.",
     themeStyleAurora: "Aurora",
     themeStyleAuroraDesc: "Türkisgrüne dunkle Palette für weichere Arbeit bei wenig Licht.",
     themeStyleSandstone: "Sandstein",
@@ -875,7 +875,7 @@ export const de: typeof en = {
     commandBody: "Befehl: {command}",
     readBody: "Lesen: {path}",
     writeBody: "Schreiben: {path}",
-    turnCompleteTitle: "Reasonix-Aufgabe abgeschlossen",
+    turnCompleteTitle: "Railwise-Aufgabe abgeschlossen",
     turnCompleteBody: "Die aktuelle Aufgabe ist abgeschlossen und bereit zur Überprüfung.",
   },
 };

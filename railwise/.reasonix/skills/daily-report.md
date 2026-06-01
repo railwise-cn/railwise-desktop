@@ -9,7 +9,8 @@ description: 快速生成监测日报/周报。输入数据文件路径或粘贴
 1. 如果用户提供了 CSV/TXT 文件路径，`run_skill data-analyst` 调用 `survey_monitoring_csv` 工具处理
 2. 如果用户直接粘贴了表格数据，由 data-analyst 直接分析
 3. `run_skill writer` 按标准日报/周报格式撰写报告
-4. 最终输出符合工程规范的 Markdown 格式报告，可直接复制提交
+4. `run_skill qa-reviewer` 对监测结论、异常描述、单位、阈值和工程措辞进行交付前复核
+5. 最终输出符合工程规范的 Markdown 格式报告，可直接复制提交
 
 **需要用户提供的信息**：
 - 项目名称

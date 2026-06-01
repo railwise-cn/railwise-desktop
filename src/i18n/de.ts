@@ -36,8 +36,8 @@ export const de: TranslationSchema = {
     diff: "Zwei Transkripte in einer geteilten Ink-TUI vergleichen.",
     mcp: "Model-Context-Protocol-Hilfsprogramme — Server entdecken, Setup testen.",
     index: "Lokalen semantischen Suchindex erstellen (oder inkrementell aktualisieren).",
-    version: "Reasonix-Version ausgeben.",
-    update: "Nach einer neueren Reasonix-Version suchen und installieren.",
+    version: "Railwise-Version ausgeben.",
+    update: "Nach einer neueren Railwise-Version suchen und installieren.",
   },
   stats: {
     ...EN.stats,
@@ -433,7 +433,7 @@ export const de: TranslationSchema = {
     ...EN.wizard,
     languageTitle: "Sprache auswählen",
     languageSubtitle: "Aus der Systemsprache erkannt. Später mit /language wechselbar.",
-    welcomeTitle: "Willkommen bei Reasonix.",
+    welcomeTitle: "Willkommen bei Railwise.",
     apiKeyPrompt: "Füge deinen DeepSeek-API-Schlüssel ein, um loszulegen.",
     apiKeyGetOne: "Erhalte einen unter: https://platform.deepseek.com/api_keys",
     apiKeySavedLocally: "Lokal gespeichert unter {path}",
@@ -469,7 +469,7 @@ export const de: TranslationSchema = {
     themeCaption: {
       ...EN.wizard.themeCaption,
       graphite: "Originale dunkle Palette mit neutralen Graphit-Flächen",
-      ember: "Warmes dunkles Theme mit stärkerem Reasonix-Orange",
+      ember: "Warmes dunkles Theme mit stärkerem Railwise-Orange",
       aurora: "Türkisgrünes dunkles Theme für weicheres Arbeiten bei wenig Licht",
       sandstone: "Originale warme helle Palette",
       porcelain: "Klares helles Theme mit ruhigem Kontrast",
@@ -762,9 +762,9 @@ export const de: TranslationSchema = {
     badparam422: "Ungültiger Parameter (DeepSeek 422): {inner}",
     badrequest400: "Fehlerhafte Anfrage (DeepSeek 400): {inner}",
     concurrency429:
-      "DeepSeek-Gleichzeitigkeitslimit erreicht (429): {inner}. Das Konto hat zu viele gleichzeitige Anfragen (Grenze: 500 für v4-pro, 2500 für v4-flash, summiert über alle API-Schlüssel des Kontos). Meist läuft ein weiterer Reasonix-Prozess mit demselben Schlüssel oder ein paralleler Subagent-Fan-out hat überzogen. Warte einige Sekunden und wiederhole, reduziere die Parallelität oder beantrage eine höhere Grenze unter https://platform.deepseek.com.",
+      "DeepSeek-Gleichzeitigkeitslimit erreicht (429): {inner}. Das Konto hat zu viele gleichzeitige Anfragen (Grenze: 500 für v4-pro, 2500 für v4-flash, summiert über alle API-Schlüssel des Kontos). Meist läuft ein weiterer Railwise-Prozess mit demselben Schlüssel oder ein paralleler Subagent-Fan-out hat überzogen. Warte einige Sekunden und wiederhole, reduziere die Parallelität oder beantrage eine höhere Grenze unter https://platform.deepseek.com.",
     deepseek5xxHead:
-      "DeepSeek-Dienst nicht verfügbar ({status}) — dies ist ein DeepSeek-seitiges Problem, nicht Reasonix. Bereits 4× mit Backoff wiederholt.",
+      "DeepSeek-Dienst nicht verfügbar ({status}) — dies ist ein DeepSeek-seitiges Problem, nicht Railwise. Bereits 4× mit Backoff wiederholt.",
     deepseek5xxReachable:
       " DeepSeek's Haupt-API hat auf unseren Health-Check geantwortet, aber /chat/completions schlägt fehl — partieller Ausfall auf ihrer Seite.",
     deepseek5xxUnreachable:
@@ -774,7 +774,7 @@ export const de: TranslationSchema = {
     deepseek5xxActionRetry:
       " Versuche: (1) 30s warten und wiederholen, (2) /model zum Modellwechsel, (3) Statusseite: https://status.deepseek.com.",
     upstream5xxHead:
-      "Upstream-Dienst nicht verfügbar ({status}) bei {host} — der konfigurierte API-Endpunkt hat einen Serverfehler zurückgegeben, kein Reasonix-Fehler. Bereits 4× mit Backoff wiederholt.",
+      "Upstream-Dienst nicht verfügbar ({status}) bei {host} — der konfigurierte API-Endpunkt hat einen Serverfehler zurückgegeben, kein Railwise-Fehler. Bereits 4× mit Backoff wiederholt.",
     upstream5xxActionRetry:
       " Versuche: (1) Prüfen, ob der lokale/Proxy-Modell-Server läuft, (2) warten und wiederholen, (3) /model zum Modellwechsel.",
     innerNoMessage: "(keine Nachricht)",

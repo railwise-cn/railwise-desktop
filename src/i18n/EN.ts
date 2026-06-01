@@ -446,7 +446,7 @@ export const EN: TranslationSchema = {
   wizard: {
     languageTitle: "Choose your language",
     languageSubtitle: "Detected from your system locale. Switch later via /language.",
-    welcomeTitle: "Welcome to Reasonix.",
+    welcomeTitle: "Welcome to Railwise.",
     apiKeyPrompt: "Paste your DeepSeek API key to get started.",
     apiKeyGetOne: "Get one at: https://platform.deepseek.com/api_keys",
     apiKeySavedLocally: "Saved locally to {path}",
@@ -758,7 +758,7 @@ export const EN: TranslationSchema = {
     concurrency429:
       "DeepSeek concurrency limit hit (429): {inner}. The account has too many in-flight requests (cap: 500 for v4-pro, 2500 for v4-flash, summed across API keys account-wide). Usually means another Railwise process is sharing the same key, or a parallel subagent fan-out overshot. Wait a few seconds and retry, reduce parallelism, or request a higher cap at https://platform.deepseek.com.",
     deepseek5xxHead:
-      "DeepSeek service unavailable ({status}) — this is a DeepSeek-side problem, not Reasonix. Already retried 4× with backoff.",
+      "DeepSeek service unavailable ({status}) — this is a DeepSeek-side problem, not Railwise. Already retried 4× with backoff.",
     deepseek5xxReachable:
       " DeepSeek's main API answered our health check, but /chat/completions is failing — partial outage on their side.",
     deepseek5xxUnreachable:

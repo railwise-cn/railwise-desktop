@@ -9,6 +9,7 @@ import { registerChart } from "./tools/chart.js";
 import { registerStandard } from "./tools/standard.js";
 import { registerReport } from "./tools/report.js";
 import { registerExcel } from "./tools/excel.js";
+import { registerEngineering } from "./tools/engineering.js";
 
 const server = new McpServer({
   name: "survey",
@@ -24,6 +25,7 @@ registerChart(server); // survey_chart_generator —— SVG 趋势图
 registerStandard(server); // survey_standard_query / _list —— 规范条文检索
 registerReport(server); // survey_report_export —— Markdown→Word
 registerExcel(server); // survey_excel_export / _monitoring_table —— Excel 导出
+registerEngineering(server); // survey_control_network / coord_transform / 桩位放样等工程计算
 
 async function main(): Promise<void> {
   const transport = new StdioServerTransport();

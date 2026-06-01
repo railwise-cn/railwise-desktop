@@ -622,6 +622,28 @@ describe("Skill frontmatter — runAs", () => {
     expect(store.read("wrong")?.model).toBeUndefined();
   });
 
+  it("maps Railwise flash/pro model presets in skill frontmatter to concrete DeepSeek model ids", () => {
+    writeSkillDir(
+      home,
+      "global",
+      "fast",
+      { description: "...", runAs: "subagent", model: "flash" },
+      "body",
+      home,
+    );
+    writeSkillDir(
+      home,
+      "global",
+      "strict",
+      { description: "...", runAs: "subagent", model: "pro" },
+      "body",
+      home,
+    );
+    const store = new SkillStore({ homeDir: home, disableBuiltins: true });
+    expect(store.read("fast")?.model).toBe("deepseek-v4-flash");
+    expect(store.read("strict")?.model).toBe("deepseek-v4-pro");
+  });
+
   it("parses comma-separated allowed-tools into a trimmed list", () => {
     writeSkillDir(
       home,

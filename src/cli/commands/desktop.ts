@@ -114,6 +114,7 @@ import {
   ImmutablePrefix,
   type LoopAbortOptions,
 } from "../../index.js";
+import { loadDotMcpJson } from "../../mcp/dot-mcp-json.js";
 import { type McpServerSpec, parseMcpSpec, specToRaw } from "../../mcp/spec.js";
 import {
   deleteSession,
@@ -138,7 +139,6 @@ import type { ChoiceOption } from "../../tools/choice.js";
 import type { ChatMessage } from "../../types.js";
 import { VERSION } from "../../version.js";
 import { type McpRuntime, createMcpRuntime } from "./mcp-runtime.js";
-import { loadDotMcpJson } from "../../mcp/dot-mcp-json.js";
 
 export interface DesktopOptions {
   model: string;
@@ -147,17 +147,8 @@ export interface DesktopOptions {
   dir?: string;
 }
 
-/**
- * Resolves the bundled RAILWISE survey workspace so a first launch (no saved
- * workspace) opens it by default — its `.mcp.json` then auto-mounts the survey
- * MCP server and `.reasonix/skills` become available.
- *
- * Resolution order:
- *   1. `RAILWISE_WORKSPACE` env override (absolute path).
- *   2. Walk up from this module looking for `railwise/.mcp.json` (works for
- *      both `src/` dev runs and compiled `dist/` builds).
- * Returns `undefined` when nothing is found so callers fall back to cwd.
- */
+/** Resolve the bundled RAILWISE workspace for first launch; env override wins,
+ * then dev/dist module ancestry is searched. */
 function defaultRailwiseWorkspace(): string | undefined {
   const envDir = process.env.RAILWISE_WORKSPACE?.trim();
   if (envDir) {

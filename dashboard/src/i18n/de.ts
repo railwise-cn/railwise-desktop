@@ -331,7 +331,7 @@ export const de: typeof en = {
     themeStyleGraphite: "Graphit",
     themeStyleGraphiteDesc: "Kühle dunkle Neutrale — am besten für lange Sitzungen.",
     themeStyleEmber: "Ember",
-    themeStyleEmberDesc: "Warmes Dunkel mit stärkerem Reasonix-Orange.",
+    themeStyleEmberDesc: "Warmes Dunkel mit stärkerem Railwise-Orange.",
     themeStyleAurora: "Aurora",
     themeStyleAuroraDesc: "Türkisgrünes Dunkel für weicheres Arbeiten bei wenig Licht.",
     themeStyleSandstone: "Sandstein",

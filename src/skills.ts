@@ -98,6 +98,13 @@ function subagentModelForPreset(preset: "flash" | "pro"): string {
   return preset === "pro" ? "deepseek-v4-pro" : "deepseek-v4-flash";
 }
 
+function parseSubagentModel(raw: string | undefined): string | undefined {
+  const model = raw?.trim();
+  if (!model) return undefined;
+  if (model === "flash" || model === "pro") return subagentModelForPreset(model);
+  return model.startsWith("deepseek-") ? model : undefined;
+}
+
 export class SkillStore {
   private readonly homeDir: string;
   private readonly projectRoot: string | undefined;
@@ -312,7 +319,7 @@ export class SkillStore {
       path,
       allowedTools: parseAllowedTools(data["allowed-tools"]),
       runAs: parseRunAs(data.runAs, data.context, data.agent),
-      model: data.model?.startsWith("deepseek-") ? data.model : undefined,
+      model: parseSubagentModel(data.model),
     };
   }
 }

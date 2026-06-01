@@ -8,3 +8,6 @@ if (!existsSync("dashboard/package.json")) process.exit(0);
 
 execSync("npm --prefix dashboard ci --ignore-scripts", { stdio: "inherit" });
 execSync("npm --prefix desktop ci --ignore-scripts", { stdio: "inherit" });
+if (existsSync("railwise/survey-mcp/package.json")) {
+  execSync("npm --prefix railwise/survey-mcp ci --ignore-scripts", { stdio: "inherit" });
+}

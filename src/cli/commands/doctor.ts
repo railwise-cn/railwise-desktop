@@ -19,6 +19,7 @@ import { indexExists } from "../../index/semantic/builder.js";
 import { checkOllamaStatus } from "../../index/semantic/ollama-launcher.js";
 import { listSessions } from "../../memory/session.js";
 import { detectProxyUrl, matchesNoProxy, resolveNoProxy } from "../../net/proxy.js";
+import { runRailwiseReadinessChecks } from "../../railwise/readiness.js";
 import { resolveDataPath } from "../../tokenizer.js";
 import { VERSION } from "../../version.js";
 
@@ -52,7 +53,18 @@ export async function runDoctorChecks(projectRoot: string): Promise<DoctorCheck[
     checkOllama(projectRoot),
     checkProject(projectRoot),
   ]);
-  return [r[0], r[1], ...checkProxy(), r[2], r[3], r[4], r[5], r[6], r[7]];
+  return [
+    r[0],
+    r[1],
+    ...checkProxy(),
+    r[2],
+    r[3],
+    r[4],
+    r[5],
+    r[6],
+    r[7],
+    ...runRailwiseReadinessChecks(projectRoot),
+  ];
 }
 
 /** Probe hosts used to show users what's going through the proxy vs. direct. Cheap (no I/O), purely a routing simulation against the same NO_PROXY patterns the dispatcher uses. */

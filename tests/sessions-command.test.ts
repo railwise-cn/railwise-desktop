@@ -25,7 +25,7 @@ describe("sessions command", () => {
     appendSessionMessage("release-fix", { role: "user", content: "repair packaging" });
     patchSessionMeta("release-fix", {
       summary: "Fix release packaging after optional renderer dependency update",
-      workspace: "/work/reasonix",
+      workspace: "/work/railwise",
       branch: "GTC/fix-release",
     });
     const lines: string[] = [];
