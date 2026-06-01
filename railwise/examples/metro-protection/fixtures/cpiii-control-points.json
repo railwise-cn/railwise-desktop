@@ -1,0 +1,33 @@
+{
+  "toleranceMm": 2,
+  "points": [
+    {
+      "id": "CP3-01",
+      "designX": 358421.124,
+      "designY": 3321142.881,
+      "measuredX": 358421.1248,
+      "measuredY": 3321142.8804
+    },
+    {
+      "id": "CP3-02",
+      "designX": 358466.732,
+      "designY": 3321160.214,
+      "measuredX": 358466.7311,
+      "measuredY": 3321160.2151
+    },
+    {
+      "id": "CP3-03",
+      "designX": 358512.446,
+      "designY": 3321178.906,
+      "measuredX": 358512.447,
+      "measuredY": 3321178.9052
+    },
+    {
+      "id": "CP3-04",
+      "designX": 358558.008,
+      "designY": 3321197.339,
+      "measuredX": 358558.0107,
+      "measuredY": 3321197.3409
+    }
+  ]
+}

@@ -10,7 +10,7 @@ let stopping = false;
 
 function defaultOutPath(): string {
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").replace("Z", "");
-  return resolve(process.cwd(), `reasonix-cpu-${stamp}.cpuprofile`);
+  return resolve(process.cwd(), `railwise-cpu-${stamp}.cpuprofile`);
 }
 
 export async function startCpuProfile(pathArg?: string | true): Promise<string> {
@@ -39,7 +39,7 @@ export async function stopAndSaveCpuProfile(): Promise<void> {
     writeFileSync(gzPath, gz);
     const mb = (gz.length / (1024 * 1024)).toFixed(2);
     process.stderr.write(
-      `▸ cpu profile saved → ${gzPath} (${mb} MB gzipped)\n  drag into a GitHub issue comment, or:\n  gh issue comment <N> --repo esengine/DeepSeek-Reasonix -F "${gzPath}"\n`,
+      `▸ cpu profile saved → ${gzPath} (${mb} MB gzipped)\n  drag into a GitHub issue comment, or:\n  gh issue comment <N> --repo esengine/Railwise -F "${gzPath}"\n`,
     );
   } catch (e) {
     process.stderr.write(`▲ cpu profile save failed: ${(e as Error).message}\n`);

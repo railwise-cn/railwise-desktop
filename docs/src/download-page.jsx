@@ -9,7 +9,7 @@ function buildPlatformNotes(version) { return {
       en: 'Installers are not yet code-signed, so Gatekeeper blocks the first launch. Pick one:',
     },
     steps: [
-      { cmd: 'xattr -dr com.apple.quarantine /Applications/Reasonix.app', note: { zh: '终端一行解除隔离属性', en: 'One-liner to clear the quarantine attribute' } },
+      { cmd: 'xattr -dr com.apple.quarantine /Applications/Railwise.app', note: { zh: '终端一行解除隔离属性', en: 'One-liner to clear the quarantine attribute' } },
       { cmd: 'right-click → Open → confirm', note: { zh: '在 Finder 中右键打开，确认一次后续不再询问', en: 'Right-click → Open → confirm once; macOS remembers afterwards' } },
     ],
   },
@@ -22,7 +22,7 @@ function buildPlatformNotes(version) { return {
     },
     steps: [
       { cmd: 'More info → Run anyway', note: { zh: '点 "更多信息" 然后 "仍要运行" 即可', en: 'Click "More info", then "Run anyway"' } },
-      { cmd: 'Get-AuthenticodeSignature .\\Reasonix_setup.exe', note: { zh: '可在 PowerShell 中校验文件 hash', en: 'Verify the file hash in PowerShell if you want' } },
+      { cmd: 'Get-AuthenticodeSignature .\\Railwise_setup.exe', note: { zh: '可在 PowerShell 中校验文件 hash', en: 'Verify the file hash in PowerShell if you want' } },
     ],
   },
   linux: {
@@ -33,7 +33,7 @@ function buildPlatformNotes(version) { return {
       en: 'AppImages need an executable bit; some distros also need libfuse2:',
     },
     steps: [
-      { cmd: `chmod +x Reasonix_${version}_amd64.AppImage`, note: { zh: '赋予可执行权限', en: 'Mark it executable' } },
+      { cmd: `chmod +x Railwise_${version}_amd64.AppImage`, note: { zh: '赋予可执行权限', en: 'Mark it executable' } },
       { cmd: 'sudo apt install libfuse2 # debian/ubuntu', note: { zh: 'AppImage 运行时依赖', en: 'AppImage runtime dependency' } },
     ],
   },

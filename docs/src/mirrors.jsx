@@ -1,7 +1,7 @@
 // Smart mirror grid — probes R2 / GitHub Releases for fastest TTFB and offers
 // a per-platform installer link from whichever wins.
 
-const GH_REPO = "esengine/DeepSeek-Reasonix";
+const GH_REPO = "esengine/Railwise";
 const R2_BASE = "https://pub-147fb53b9c1e4bbf891a257968619ea7.r2.dev";
 
 function buildMirrors(version) {
@@ -30,21 +30,21 @@ function buildOsOptions(version) {
     {
       id: "mac",
       label: "macOS",
-      file: `Reasonix_${version}_universal.dmg`,
+      file: `Railwise_${version}_universal.dmg`,
       size: "52 MB",
       note: "Universal — Apple Silicon + Intel",
     },
     {
       id: "win",
       label: "Windows",
-      file: `Reasonix_${version}_x64-setup.exe`,
+      file: `Railwise_${version}_x64-setup.exe`,
       size: "30 MB",
       note: "NSIS installer · x64",
     },
     {
       id: "linux",
       label: "Linux",
-      file: `Reasonix_${version}_amd64.AppImage`,
+      file: `Railwise_${version}_amd64.AppImage`,
       size: "128 MB",
       note: "AppImage · x86_64",
     },

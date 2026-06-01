@@ -32,7 +32,7 @@ const INSTALL_TABS = [
     cmd: 'pnpm add -g railwise && railwise code',
     note: { zh: '全局安装速度更快', en: 'Faster global install' } },
   { id: 'src',  label: { zh: 'from source', en: 'from source' },
-    cmd: 'git clone https://github.com/esengine/DeepSeek-Reasonix && cd DeepSeek-Reasonix && npm install && npm run dev code',
+    cmd: 'git clone https://github.com/esengine/Railwise && cd Railwise && npm install && npm run dev code',
     note: { zh: '需要参与开发请走源码', en: 'Go via source if you want to contribute' } },
 ];
 

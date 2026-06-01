@@ -16,17 +16,17 @@ in the app. Generate once and commit the **public** half to
 
 ```bash
 cd desktop
-npx @tauri-apps/cli signer generate -w ~/.tauri/reasonix.key
+npx @tauri-apps/cli signer generate -w ~/.tauri/railwise.key
 ```
 
 Outputs:
-- `~/.tauri/reasonix.key` — the **private** key. Never commit. Add a
+- `~/.tauri/railwise.key` — the **private** key. Never commit. Add a
   passphrase when prompted.
-- `~/.tauri/reasonix.key.pub` — paste into `tauri.conf.json` under
+- `~/.tauri/railwise.key.pub` — paste into `tauri.conf.json` under
   `plugins.updater.pubkey`, replacing `REPLACE_ME_RUN_tauri_signer_generate`.
 
 Set repo secrets:
-- `TAURI_SIGNING_PRIVATE_KEY` — full contents of `~/.tauri/reasonix.key`
+- `TAURI_SIGNING_PRIVATE_KEY` — full contents of `~/.tauri/railwise.key`
 - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` — the passphrase
 
 The workflow exports both as env vars; `tauri-action` picks them up and
@@ -46,9 +46,9 @@ get the latter, combine with `openssl`:
 
 ```bash
 openssl pkcs12 -export \
-  -inkey reasonix.key \
-  -in reasonix.cer \
-  -out reasonix.pfx \
+  -inkey railwise.key \
+  -in railwise.cer \
+  -out railwise.pfx \
   -name "Railwise Code Signing"
 ```
 
@@ -60,13 +60,13 @@ Tauri v2 reads three env vars on Windows:
 
 | Secret | What it is |
 |---|---|
-| `WINDOWS_CERTIFICATE` | base64-encoded contents of `reasonix.pfx` |
+| `WINDOWS_CERTIFICATE` | base64-encoded contents of `railwise.pfx` |
 | `WINDOWS_CERTIFICATE_PASSWORD` | the PFX export password |
 
 Encode the cert before adding the secret:
 
 ```bash
-base64 -w0 reasonix.pfx > reasonix.pfx.b64
+base64 -w0 railwise.pfx > railwise.pfx.b64
 ```
 
 Then add a step to the matrix' Windows job that imports the cert and
@@ -89,7 +89,7 @@ WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
 ### Verify locally before pushing the tag
 
 ```powershell
-signtool verify /pa /v Reasonix_0.40.0_x64-setup.exe
+signtool verify /pa /v Railwise_0.40.0_x64-setup.exe
 ```
 
 Output should include `Successfully verified` and the certificate's
@@ -113,7 +113,7 @@ Accounts → Manage Certificates, create a `Developer ID Application`
 cert. Export from Keychain as a `.p12` with a passphrase.
 
 ```bash
-base64 -i ReasonixDeveloperID.p12 -o cert.p12.b64
+base64 -i RailwiseDeveloperID.p12 -o cert.p12.b64
 ```
 
 ### One-time: app-specific password for notarytool
@@ -143,12 +143,12 @@ Silicon) produce a signed + notarized `.dmg`.
 After downloading the artifact:
 
 ```bash
-spctl -a -t open --context context:primary-signature -vvv Reasonix_0.40.0_aarch64.dmg
+spctl -a -t open --context context:primary-signature -vvv Railwise_0.40.0_aarch64.dmg
 # expected: source=Notarized Developer ID
 ```
 
 ```bash
-codesign --verify --deep --strict --verbose=2 /Applications/Reasonix.app
+codesign --verify --deep --strict --verbose=2 /Applications/Railwise.app
 # expected: valid on disk + satisfies its Designated Requirement
 ```
 

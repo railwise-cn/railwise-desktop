@@ -6,7 +6,7 @@ import { t } from "../i18n";
 import { I } from "../icons";
 
 const REPO_URL = BRAND_REPO_URL;
-const RELEASES_PAGE = "https://github.com/esengine/DeepSeek-Reasonix/releases";
+const RELEASES_PAGE = "https://github.com/esengine/Railwise/releases";
 
 type CheckState =
   | { kind: "idle" }

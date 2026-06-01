@@ -24,6 +24,9 @@ describe("Railwise metro-protection end-to-end sample", () => {
       "monitoring-settlement.csv",
       "expected-monitoring-report.md",
       "sop-checklist.md",
+      "fixtures/cpiii-control-points.json",
+      "fixtures/shield-guidance.json",
+      "fixtures/inclinometer-readings.json",
     ]) {
       expect(existsSync(resolve(SAMPLE_ROOT, file)), `missing sample file ${file}`).toBe(true);
     }

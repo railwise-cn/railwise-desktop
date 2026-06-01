@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { I } from "../icons";
-import { t } from "../i18n";
 import type { Balance, Settings, UsageStats } from "../App";
-import type { JobInfo } from "../protocol";
+import { t } from "../i18n";
+import { I } from "../icons";
+import type { JobInfo, RailwiseReadinessItem } from "../protocol";
 import { THEME, THEME_STYLES, type Theme, type ThemeStyle, themeForStyle } from "../theme";
 import { localizeShortcutText } from "./shortcut";
 
@@ -40,10 +40,12 @@ export function StatusBar({
   themeStyle,
   jobs,
   jobsOpen,
+  railwiseReadiness,
   onToggleJobs,
   onSetThemeStyle,
   onToggleCurrency,
   onOpenSettings,
+  onOpenRailwise,
   onOpenWorkdir,
 }: {
   settings: Settings | null;
@@ -56,10 +58,12 @@ export function StatusBar({
   themeStyle: ThemeStyle;
   jobs: JobInfo[];
   jobsOpen: boolean;
+  railwiseReadiness?: RailwiseReadinessItem[];
   onToggleJobs: () => void;
   onSetThemeStyle: (style: ThemeStyle) => void;
   onToggleCurrency: () => void;
   onOpenSettings: () => void;
+  onOpenRailwise?: () => void;
   onOpenWorkdir?: (anchor: { bottom: number; left: number }) => void;
 }) {
   const sessionPromptTokens =
@@ -79,6 +83,10 @@ export function StatusBar({
     ? `${balance.currency === "USD" ? "$" : "¥"} ${balance.total.toFixed(2)}`
     : "—";
   const connState = !ready ? "off" : busy ? "running" : "online";
+  const railwiseFail = railwiseReadiness?.filter((check) => check.level === "fail").length ?? 0;
+  const railwiseWarn = railwiseReadiness?.filter((check) => check.level === "warn").length ?? 0;
+  const railwiseOk = railwiseReadiness?.filter((check) => check.level === "ok").length ?? 0;
+  const railwiseState = railwiseFail > 0 ? "fail" : railwiseWarn > 0 ? "warn" : "ok";
   const [themeOpen, setThemeOpen] = useState(false);
   const themePopRef = useRef<HTMLDivElement | null>(null);
   const themeButtonRef = useRef<HTMLSpanElement | null>(null);
@@ -102,7 +110,9 @@ export function StatusBar({
           style={connState === "off" ? { background: "var(--danger)" } : undefined}
         />
         <span>{settings?.baseUrl?.replace(/^https?:\/\//, "") ?? "api.deepseek.com"}</span>
-        <span className="v">{!ready ? t("statusbar.offline") : busy ? t("statusbar.busy") : t("statusbar.online")}</span>
+        <span className="v">
+          {!ready ? t("statusbar.offline") : busy ? t("statusbar.busy") : t("statusbar.online")}
+        </span>
       </span>
       <span className="seg" title={cacheHitDetail || t("statusbar.cacheHit")}>
         <I.zap size={11} style={{ color: "var(--accent)" }} />
@@ -121,6 +131,21 @@ export function StatusBar({
       </span>
 
       <span className="grow" />
+
+      <span
+        className="seg"
+        title={t("statusbar.railwiseReadiness")}
+        onClick={onOpenRailwise}
+        style={onOpenRailwise ? { cursor: "pointer" } : undefined}
+      >
+        <I.shield size={11} />
+        <span>Railwise</span>
+        <span
+          className={railwiseState === "ok" ? "v ok" : railwiseState === "warn" ? "v warn" : "v"}
+        >
+          {railwiseOk}/{railwiseWarn}/{railwiseFail}
+        </span>
+      </span>
 
       <span
         className={`seg jobs ${jobsOpen ? "active" : ""}`}
@@ -156,11 +181,7 @@ export function StatusBar({
         <span className="v vio">{settings?.model ?? "—"}</span>
         <span className="v">{settings?.reasoningEffort ?? "high"}</span>
       </span>
-      <span
-        className="seg"
-        title={t("statusbar.switchCurrency")}
-        onClick={onToggleCurrency}
-      >
+      <span className="seg" title={t("statusbar.switchCurrency")} onClick={onToggleCurrency}>
         <I.coin size={11} />
         <span>{t("statusbar.balance")}</span>
         <span className="v ok">
@@ -183,7 +204,12 @@ export function StatusBar({
         </span>
       </span>
       {themeOpen ? (
-        <div ref={themePopRef} className="theme-pop" role="menu" aria-label={t("settings.themeStyle")}>
+        <div
+          ref={themePopRef}
+          className="theme-pop"
+          role="menu"
+          aria-label={t("settings.themeStyle")}
+        >
           <div className="theme-pop-head">
             <div className="tt">{t("settings.themeStyle")}</div>
             <div className="ss">{t("statusbar.switchTheme")}</div>

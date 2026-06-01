@@ -103,20 +103,20 @@ Only focus on the code touched by this diff — don't go off-topic.`,
     title: 'Memory',
     cn: { zh: '项目级与全局记忆', en: 'Project + global memory' },
     desc: {
-      zh: 'Railwise 把"应当记住"的内容拆成两层：仓库级的 reasonix.md（提交进 git，团队共享）与用户级的 ~/.reasonix/memory.md（个人偏好，不入库）。每次会话启动时自动注入到 prompt 头部。',
-      en: 'Railwise splits "what to remember" into two layers: repo-level `reasonix.md` (checked into git, shared with the team) and user-level `~/.reasonix/memory.md` (personal preferences, kept private). Both are injected at the top of the prompt on every session.',
+      zh: 'Railwise 把"应当记住"的内容拆成两层：仓库级的 REASONIX.md（提交进 git，团队共享）与用户级的 ~/.reasonix/memory.md（个人偏好，不入库）。每次会话启动时自动注入到 prompt 头部。',
+      en: 'Railwise splits "what to remember" into two layers: repo-level `REASONIX.md` (checked into git, shared with the team) and user-level `~/.reasonix/memory.md` (personal preferences, kept private). Both are injected at the top of the prompt on every session.',
     },
     bullets: [
-      { zh: '<project>/reasonix.md · 项目约定 · git-tracked', en: '<project>/reasonix.md · project conventions · git-tracked' },
+      { zh: '<project>/REASONIX.md · 项目约定 · git-tracked', en: '<project>/REASONIX.md · project conventions · git-tracked' },
       { zh: '~/.reasonix/memory.md · 用户偏好 · 私有', en: '~/.reasonix/memory.md · user preferences · private' },
       { zh: '/memory edit 在 TUI 内直接编辑', en: '/memory edit opens it inside the TUI' },
       { zh: '注入位置位于 cache-stable 前缀 · 不影响命中', en: 'Injected inside the cache-stable prefix · cache hit unaffected' },
     ],
     files: [
       {
-        name: '<project>/reasonix.md',
+        name: '<project>/REASONIX.md',
         lang: 'md',
-        code: `# reasonix.md
+        code: `# REASONIX.md
 # Railwise loads this on every session start.
 
 ## Conventions
@@ -223,7 +223,7 @@ Only focus on the code touched by this diff — don't go off-topic.`,
 # Capabilities
 › /mcp list           # mounted MCP servers
 › /skill new fix-bug  # scaffold a new skill
-› /memory edit        # open reasonix.md
+› /memory edit        # open REASONIX.md
 
 # Session + replay
 › /status             # model · cache hit · cost
@@ -356,8 +356,8 @@ function Config() {
             <Ic.Sparkle size={13}/>
             <span>
               {t({
-                zh: <>所有路径与命令均来自 <a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noreferrer" style={{color:'var(--accent)', textDecoration:'none'}}>esengine/DeepSeek-Reasonix</a>。</>,
-                en: <>Every path and command shown lives in <a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noreferrer" style={{color:'var(--accent)', textDecoration:'none'}}>esengine/DeepSeek-Reasonix</a>.</>,
+                zh: <>所有路径与命令均来自 <a href="https://github.com/esengine/Railwise" target="_blank" rel="noreferrer" style={{color:'var(--accent)', textDecoration:'none'}}>esengine/Railwise</a>。</>,
+                en: <>Every path and command shown lives in <a href="https://github.com/esengine/Railwise" target="_blank" rel="noreferrer" style={{color:'var(--accent)', textDecoration:'none'}}>esengine/Railwise</a>.</>,
               }, lang)}
             </span>
           </div>

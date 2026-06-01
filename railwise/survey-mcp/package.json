@@ -1,7 +1,7 @@
 {
   "name": "survey-mcp",
   "version": "1.0.0",
-  "description": "睿威智测工程测绘算法 MCP Server — 平差、限差、变形分析、报表导出。供 DeepSeek-Reasonix 挂载。",
+  "description": "睿威智测工程测绘算法 MCP Server — 平差、限差、变形分析、报表导出。供 Railwise 挂载。",
   "type": "module",
   "bin": {
     "survey-mcp": "dist/index.js"

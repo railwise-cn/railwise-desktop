@@ -16,7 +16,7 @@ function Footer() {
           <a className="brand" href="#top" style={{textDecoration:'none', color:'inherit'}}>
             <span className="brand-mark"></span>
             <span className="brand-name">
-              <b>DeepSeek-Reasonix</b>
+              <b>Railwise</b>
             </span>
           </a>
           <p style={{color:'var(--cream-mute)', fontSize:13, marginTop:14, lineHeight:1.65, maxWidth:340}}>
@@ -26,8 +26,8 @@ function Footer() {
             }, lang)}
           </p>
           <div style={{display:'flex', gap:10, marginTop:18}}>
-            <a className="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noreferrer" aria-label="GitHub"><Ic.Github size={14}/></a>
-            <a className="btn btn-ghost btn-sm" href="https://github.com/esengine/DeepSeek-Reasonix/discussions" target="_blank" rel="noreferrer">Discussions</a>
+            <a className="btn btn-ghost btn-sm" href="https://github.com/esengine/Railwise" target="_blank" rel="noreferrer" aria-label="GitHub"><Ic.Github size={14}/></a>
+            <a className="btn btn-ghost btn-sm" href="https://github.com/esengine/Railwise/discussions" target="_blank" rel="noreferrer">Discussions</a>
           </div>
         </div>
         <div>
@@ -42,18 +42,18 @@ function Footer() {
         <div>
           <h5>Community</h5>
           <ul>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noreferrer">GitHub</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/discussions" target="_blank" rel="noreferrer">Discussions</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/issues" target="_blank" rel="noreferrer">Issues</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">Contributing</a></li>
+            <li><a href="https://github.com/esengine/Railwise" target="_blank" rel="noreferrer">GitHub</a></li>
+            <li><a href="https://github.com/esengine/Railwise/discussions" target="_blank" rel="noreferrer">Discussions</a></li>
+            <li><a href="https://github.com/esengine/Railwise/issues" target="_blank" rel="noreferrer">Issues</a></li>
+            <li><a href="https://github.com/esengine/Railwise/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">Contributing</a></li>
           </ul>
         </div>
         <div>
           <h5>Resources</h5>
           <ul>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix#readme" target="_blank" rel="noreferrer">README</a></li>
+            <li><a href="https://github.com/esengine/Railwise#readme" target="_blank" rel="noreferrer">README</a></li>
             <li><a href="index.html#roadmap">Roadmap</a></li>
-            <li><a href="https://github.com/esengine/DeepSeek-Reasonix/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a></li>
+            <li><a href="https://github.com/esengine/Railwise/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer">Changelog</a></li>
             <li><a href="https://platform.deepseek.com" target="_blank" rel="noreferrer">DeepSeek Platform</a></li>
           </ul>
         </div>

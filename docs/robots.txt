@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://esengine.github.io/DeepSeek-Reasonix/sitemap.xml
+Sitemap: https://esengine.github.io/Railwise/sitemap.xml

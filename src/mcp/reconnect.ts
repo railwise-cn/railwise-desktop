@@ -132,7 +132,7 @@ function driftMessage(drift: ReturnType<typeof classifyToolListDrift>): string {
   if (drift.kind === "remove") {
     return `tool(s) removed: ${drift.removed.join(", ")}. Restart Railwise to drop them from the registry.`;
   }
-  return "tool list reordered or restructured — cache prefix would be invalidated. Restart Reasonix.";
+  return "tool list reordered or restructured — cache prefix would be invalidated. Restart Railwise.";
 }
 
 function toolsToSpecs(tools: readonly McpTool[]): import("../types.js").ToolSpec[] {

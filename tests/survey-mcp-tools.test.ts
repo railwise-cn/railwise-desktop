@@ -1,4 +1,5 @@
 import { type ChildProcessWithoutNullStreams, spawn, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -230,5 +231,33 @@ describe("survey-mcp engineering tools", () => {
     });
 
     expect(JSON.stringify(error)).toContain("分秒");
+  });
+
+  it("runs shipped metro-protection engineering fixtures as credible field examples", async () => {
+    const fixtureRoot = resolve("railwise/examples/metro-protection/fixtures");
+    const fixture = <T>(name: string): T =>
+      JSON.parse(readFileSync(resolve(fixtureRoot, name), "utf8")) as T;
+
+    const cpiii = await callTool(
+      "cpiii_adjustment",
+      fixture<Record<string, unknown>>("cpiii-control-points.json"),
+    );
+    expect(cpiii.failed_points).toEqual(["CP3-04"]);
+    expect(cpiii.max_error_mm).toBeGreaterThan(2);
+
+    const shield = await callTool(
+      "shield_guidance",
+      fixture<Record<string, unknown>>("shield-guidance.json"),
+    );
+    expect(shield.horizontal_status).toBe("pass");
+    expect(shield.vertical_status).toBe("alert");
+    expect(shield.azimuth_status).toBe("pass");
+
+    const inclinometer = await callTool(
+      "inclinometer",
+      fixture<Record<string, unknown>>("inclinometer-readings.json"),
+    );
+    expect(inclinometer.max_depth_m).toBe(18);
+    expect(inclinometer.is_alert).toBe(true);
   });
 });

@@ -9,9 +9,9 @@
   &nbsp;·&nbsp;
   <a href="./README.ja-JP.md">日本語</a>
   &nbsp;·&nbsp;
-  <a href="https://esengine.github.io/DeepSeek-Reasonix/">Website</a>
+  <a href="https://esengine.github.io/Railwise/">Website</a>
   &nbsp;·&nbsp;
-  <a href="https://esengine.github.io/DeepSeek-Reasonix/configuration.html">Guide</a>
+  <a href="https://esengine.github.io/Railwise/configuration.html">Guide</a>
   &nbsp;·&nbsp;
   <a href="./docs/ARCHITECTURE.md">Architecture</a>
   &nbsp;·&nbsp;
@@ -21,22 +21,22 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/reasonix"><img src="https://img.shields.io/npm/v/reasonix.svg?style=flat-square&color=cb3837&labelColor=161b22&logo=npm&logoColor=white" alt="npm version"/></a>
-  <a href="https://github.com/esengine/reasonix/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/esengine/reasonix/ci.yml?style=flat-square&label=ci&labelColor=161b22&logo=githubactions&logoColor=white" alt="CI"/></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/reasonix.svg?style=flat-square&color=8b949e&labelColor=161b22" alt="license"/></a>
-  <a href="https://www.npmjs.com/package/reasonix"><img src="https://img.shields.io/npm/dm/reasonix.svg?style=flat-square&color=3fb950&labelColor=161b22&label=downloads" alt="downloads"/></a>
-  <a href="./package.json"><img src="https://img.shields.io/node/v/reasonix.svg?style=flat-square&color=5fa04e&labelColor=161b22&logo=nodedotjs&logoColor=white" alt="node"/></a>
-  <a href="https://github.com/esengine/reasonix/stargazers"><img src="https://img.shields.io/github/stars/esengine/reasonix.svg?style=flat-square&color=dbab09&labelColor=161b22&logo=github&logoColor=white" alt="GitHub stars"/></a>
-  <a href="https://atomgit.com/esengine/DeepSeek-Reasonix"><img src="https://atomgit.com/esengine/DeepSeek-Reasonix/star/badge.svg" alt="AtomGit stars"/></a>
-  <a href="https://github.com/esengine/reasonix/graphs/contributors"><img src="https://img.shields.io/github/contributors/esengine/reasonix.svg?style=flat-square&color=bc8cff&labelColor=161b22&logo=github&logoColor=white" alt="contributors"/></a>
-  <a href="https://github.com/esengine/reasonix/discussions"><img src="https://img.shields.io/github/discussions/esengine/reasonix.svg?style=flat-square&color=58a6ff&labelColor=161b22&logo=github&logoColor=white" alt="Discussions"/></a>
+  <a href="https://www.npmjs.com/package/railwise"><img src="https://img.shields.io/npm/v/railwise.svg?style=flat-square&color=cb3837&labelColor=161b22&logo=npm&logoColor=white" alt="npm version"/></a>
+  <a href="https://github.com/esengine/Railwise/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/esengine/Railwise/ci.yml?style=flat-square&label=ci&labelColor=161b22&logo=githubactions&logoColor=white" alt="CI"/></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/railwise.svg?style=flat-square&color=8b949e&labelColor=161b22" alt="license"/></a>
+  <a href="https://www.npmjs.com/package/railwise"><img src="https://img.shields.io/npm/dm/railwise.svg?style=flat-square&color=3fb950&labelColor=161b22&label=downloads" alt="downloads"/></a>
+  <a href="./package.json"><img src="https://img.shields.io/node/v/railwise.svg?style=flat-square&color=5fa04e&labelColor=161b22&logo=nodedotjs&logoColor=white" alt="node"/></a>
+  <a href="https://github.com/esengine/Railwise/stargazers"><img src="https://img.shields.io/github/stars/esengine/Railwise.svg?style=flat-square&color=dbab09&labelColor=161b22&logo=github&logoColor=white" alt="GitHub stars"/></a>
+  <a href="https://atomgit.com/esengine/Railwise"><img src="https://atomgit.com/esengine/Railwise/star/badge.svg" alt="AtomGit stars"/></a>
+  <a href="https://github.com/esengine/Railwise/graphs/contributors"><img src="https://img.shields.io/github/contributors/esengine/Railwise.svg?style=flat-square&color=bc8cff&labelColor=161b22&logo=github&logoColor=white" alt="contributors"/></a>
+  <a href="https://github.com/esengine/Railwise/discussions"><img src="https://img.shields.io/github/discussions/esengine/Railwise.svg?style=flat-square&color=58a6ff&labelColor=161b22&logo=github&logoColor=white" alt="Discussions"/></a>
   <a href="https://discord.gg/XF78rEME2D"><img src="https://img.shields.io/badge/discord-join-5865F2.svg?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord"/></a>
 </p>
 
 <p align="center">
-  <a href="https://oosmetrics.com/repo/esengine/reasonix"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/9e931d80-2050-4b10-902e-44970cc133ad.svg" alt="oosmetrics — Top 2 in Agents by velocity"/></a>
-  <a href="https://oosmetrics.com/repo/esengine/reasonix"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/556d94b3-61b7-486b-baf2-888b9327deab.svg" alt="oosmetrics — Top 3 in LLMs by velocity"/></a>
-  <a href="https://oosmetrics.com/repo/esengine/reasonix"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/0f457d4c-efca-4d15-ad2b-139691ff342c.svg" alt="oosmetrics — Top 3 in CLI by velocity"/></a>
+  <a href="https://oosmetrics.com/repo/esengine/Railwise"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/9e931d80-2050-4b10-902e-44970cc133ad.svg" alt="oosmetrics — Top 2 in Agents by velocity"/></a>
+  <a href="https://oosmetrics.com/repo/esengine/Railwise"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/556d94b3-61b7-486b-baf2-888b9327deab.svg" alt="oosmetrics — Top 3 in LLMs by velocity"/></a>
+  <a href="https://oosmetrics.com/repo/esengine/Railwise"><img src="https://api.oosmetrics.com/api/v1/badge/achievement/0f457d4c-efca-4d15-ad2b-139691ff342c.svg" alt="oosmetrics — Top 3 in CLI by velocity"/></a>
 </p>
 
 <br/>
@@ -104,7 +104,7 @@ Bare `railwise` (no subcommand) launches `code` in the current directory — typ
 | `railwise doctor` | Health check: Node, API key, MCP wiring. |
 | `railwise update` | Upgrade Railwise itself. |
 
-Other subcommands (`replay` · `diff` · `events` · `stats` · `index` · `mcp` · `prune-sessions`) are in `railwise --help` and the [CLI reference](https://esengine.github.io/DeepSeek-Reasonix/#cli).
+Other subcommands (`replay` · `diff` · `events` · `stats` · `index` · `mcp` · `prune-sessions`) are in `railwise --help` and the [CLI reference](https://esengine.github.io/Railwise/#cli).
 
 ### QQ channel
 
@@ -121,9 +121,9 @@ For full setup, desktop quick start, and troubleshooting, see [QQ channel setup]
 
 A native Tauri client for users who want a GUI over the same loop. Multi-tab, the right-panel shows files the agent has read or edited this session, the same cost / cache / token meters live at the bottom. Same DeepSeek API key, same `~/.reasonix` config — the desktop bundles its own Node runtime, no separate `npm install` step.
 
-Download platform installers from [GitHub Releases](https://github.com/esengine/DeepSeek-Reasonix/releases). The desktop ships as a **prerelease**: the loop and protocol are the same as the CLI, but the UI is still being polished and the installers aren't code-signed yet.
+Download platform installers from [GitHub Releases](https://github.com/esengine/Railwise/releases). The desktop ships as a **prerelease**: the loop and protocol are the same as the CLI, but the UI is still being polished and the installers aren't code-signed yet.
 
-- **macOS** — first launch hits Gatekeeper. One-time fix: `xattr -dr com.apple.quarantine /Applications/Reasonix.app` (or right-click → Open → confirm).
+- **macOS** — first launch hits Gatekeeper. One-time fix: `xattr -dr com.apple.quarantine /Applications/Railwise.app` (or right-click → Open → confirm).
 - **Windows** — SmartScreen warns "Unknown publisher". Click **More info → Run anyway**.
 - **Linux** — `.deb` and `.AppImage` ship plain, no extra step.
 
@@ -173,17 +173,17 @@ npx openspec init --tools claude    # writes .claude/skills/openspec-*/SKILL.md
 
 One JSON file at `~/.reasonix/config.json` plus per-project overrides under `<project>/.reasonix/`. The full bilingual reference — every key, every slash command, the on-disk shape of skills/memory/hooks — lives at:
 
-> 📘 **[Configuration Guide](https://esengine.github.io/DeepSeek-Reasonix/configuration.html)** · [中文](https://esengine.github.io/DeepSeek-Reasonix/configuration.html?lang=zh)
+> 📘 **[Configuration Guide](https://esengine.github.io/Railwise/configuration.html)** · [中文](https://esengine.github.io/Railwise/configuration.html?lang=zh)
 
 | Topic | Quick read |
 |---|---|
-| [MCP servers](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#mcp) | stdio · SSE · Streamable HTTP. One spec format works for both `config.json` and `--mcp`. |
-| [Skills](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#skills) | Markdown playbooks the model can invoke. `inline` or `subagent` mode. |
-| [Memory](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#memory) | User-private knowledge pinned into the prefix. `user` / `feedback` / `project` / `reference` types. |
-| [Hooks](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#hooks) | Shell commands on lifecycle events. `PreToolUse` (gating) · `PostToolUse` · `UserPromptSubmit` · `Stop`. |
-| [Permissions](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#permissions) | Per-workspace shell allowlist. Exact-prefix match. |
-| [Web search](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#search) | Bing by default; switch to Baidu AI Search, self-hosted SearXNG, Metaso, Tavily, Perplexity, Exa, Brave, or Ollama with `/search-engine`. |
-| [Semantic index](https://esengine.github.io/DeepSeek-Reasonix/configuration.html#index) | `railwise index` — local Ollama or any OpenAI-compatible embedding endpoint. |
+| [MCP servers](https://esengine.github.io/Railwise/configuration.html#mcp) | stdio · SSE · Streamable HTTP. One spec format works for both `config.json` and `--mcp`. |
+| [Skills](https://esengine.github.io/Railwise/configuration.html#skills) | Markdown playbooks the model can invoke. `inline` or `subagent` mode. |
+| [Memory](https://esengine.github.io/Railwise/configuration.html#memory) | User-private knowledge pinned into the prefix. `user` / `feedback` / `project` / `reference` types. |
+| [Hooks](https://esengine.github.io/Railwise/configuration.html#hooks) | Shell commands on lifecycle events. `PreToolUse` (gating) · `PostToolUse` · `UserPromptSubmit` · `Stop`. |
+| [Permissions](https://esengine.github.io/Railwise/configuration.html#permissions) | Per-workspace shell allowlist. Exact-prefix match. |
+| [Web search](https://esengine.github.io/Railwise/configuration.html#search) | Bing by default; switch to Baidu AI Search, self-hosted SearXNG, Metaso, Tavily, Perplexity, Exa, Brave, or Ollama with `/search-engine`. |
+| [Semantic index](https://esengine.github.io/Railwise/configuration.html#index) | `railwise index` — local Ollama or any OpenAI-compatible embedding endpoint. |
 
 <br/>
 
@@ -232,7 +232,7 @@ For live cache-hit rates, costs, and methodology, see [`benchmarks/`](./benchmar
 - [**CLI Reference**](./docs/CLI-REFERENCE.md) — every shell subcommand, every slash command, every keybinding
 - [**QQ channel setup**](./docs/qq-connect.md) — CLI first-connect flow, desktop entry, and QQ Open Platform credentials
 - [**Benchmarks**](./benchmarks/) — τ-bench-lite harness, transcripts, cost methodology
-- [**Website**](https://esengine.github.io/DeepSeek-Reasonix/) — getting started, dashboard mockup, TUI mockup
+- [**Website**](https://esengine.github.io/Railwise/) — getting started, dashboard mockup, TUI mockup
 - [**Contributing**](./CONTRIBUTING.md) — comment policy, error-handling rules, library-over-hand-rolled
 - [**Code of Conduct**](./CODE_OF_CONDUCT.md) · [**Security policy**](./SECURITY.md)
 
@@ -243,18 +243,18 @@ For live cache-hit rates, costs, and methodology, see [`benchmarks/`](./benchmar
 > [!NOTE]
 > Railwise is open source and community-developed. Every avatar in the Acknowledgments wall at the bottom of this file is a real PR that shipped.
 
-Scoped starter tickets — each with background, code pointers, acceptance criteria, and hints — live under the [`good first issue`](https://github.com/esengine/reasonix/labels/good%20first%20issue) label. Pick anything open.
+Scoped starter tickets — each with background, code pointers, acceptance criteria, and hints — live under the [`good first issue`](https://github.com/esengine/Railwise/labels/good%20first%20issue) label. Pick anything open.
 
 **Open Discussions — opinions wanted:**
 
-- [#20 · CLI / TUI design](https://github.com/esengine/reasonix/discussions/20) — what's broken, what's missing, what would you change?
-- [#21 · Dashboard design](https://github.com/esengine/reasonix/discussions/21) — react against the [proposed mockup](https://esengine.github.io/DeepSeek-Reasonix/design/agent-dashboard.html)
-- [#22 · Future feature wishlist](https://github.com/esengine/reasonix/discussions/22) — what would you build into Railwise next?
+- [#20 · CLI / TUI design](https://github.com/esengine/Railwise/discussions/20) — what's broken, what's missing, what would you change?
+- [#21 · Dashboard design](https://github.com/esengine/Railwise/discussions/21) — react against the [proposed mockup](https://esengine.github.io/Railwise/design/agent-dashboard.html)
+- [#22 · Future feature wishlist](https://github.com/esengine/Railwise/discussions/22) — what would you build into Railwise next?
 
-**Already using Railwise and willing to help others discover it?** Publish blog posts, articles, screenshots, talks, or videos to [**Show and tell**](https://github.com/esengine/reasonix/discussions/categories/show-and-tell). The project has no marketing budget — community word of mouth is how new users find it. Sustained advocates earn the badge below, displayed next to the contributors wall once awarded:
+**Already using Railwise and willing to help others discover it?** Publish blog posts, articles, screenshots, talks, or videos to [**Show and tell**](https://github.com/esengine/Railwise/discussions/categories/show-and-tell). The project has no marketing budget — community word of mouth is how new users find it. Sustained advocates earn the badge below, displayed next to the contributors wall once awarded:
 
 <p align="center">
-  <a href="https://github.com/esengine/reasonix/discussions/categories/show-and-tell">
+  <a href="https://github.com/esengine/Railwise/discussions/categories/show-and-tell">
     <img src="https://img.shields.io/badge/REASONIX-📣%20ADVOCATE-c4b5fd?style=for-the-badge&labelColor=0d1117" alt="Railwise Advocate badge — earned by sustained advocates"/>
   </a>
 </p>
@@ -277,11 +277,11 @@ Scoped starter tickets — each with background, code pointers, acceptance crite
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=esengine%2FDeepSeek-Reasonix&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=esengine%2FRailwise&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=esengine/DeepSeek-Reasonix&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=esengine/DeepSeek-Reasonix&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=esengine/DeepSeek-Reasonix&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=esengine/Railwise&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=esengine/Railwise&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=esengine/Railwise&type=date&legend=top-left" />
  </picture>
 </a>
 
@@ -305,7 +305,7 @@ If Railwise has been useful and you'd like to say thanks, you can. It stays a co
 A small list of folks whose work has shaped Railwise the most — measured
 by both commit count and code volume. **Listed alphabetically, no ordering
 of importance.** The full contributor graph is on
-[GitHub](https://github.com/esengine/DeepSeek-Reasonix/graphs/contributors).
+[GitHub](https://github.com/esengine/Railwise/graphs/contributors).
 
 - [**ctharvey**](https://github.com/ctharvey)
 - [**dimasd-angga**](https://github.com/dimasd-angga) (Dimas D. Angga)
@@ -322,8 +322,8 @@ for designing the project logo (see [`docs/brand/`](./docs/brand/)), and to
 [AIGC Link](https://xhslink.com/m/80ngts127cA) for promoting the project on XiaoHongShu.
 
 <p align="center">
-  <a href="https://github.com/esengine/DeepSeek-Reasonix/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=esengine/DeepSeek-Reasonix&max=100&columns=12" alt="Contributors to esengine/DeepSeek-Reasonix" width="860"/>
+  <a href="https://github.com/esengine/Railwise/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=esengine/Railwise&max=100&columns=12" alt="Contributors to esengine/Railwise" width="860"/>
   </a>
 </p>
 
@@ -334,5 +334,5 @@ for designing the project logo (see [`docs/brand/`](./docs/brand/)), and to
 <p align="center">
   <sub>MIT — see <a href="./LICENSE">LICENSE</a></sub>
   <br/>
-  <sub>Built by the community at <a href="https://github.com/esengine/DeepSeek-Reasonix/graphs/contributors">esengine/DeepSeek-Reasonix</a></sub>
+  <sub>Built by the community at <a href="https://github.com/esengine/Railwise/graphs/contributors">esengine/Railwise</a></sub>
 </p>

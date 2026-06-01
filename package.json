@@ -71,12 +71,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/esengine/DeepSeek-Reasonix.git"
+    "url": "git+https://github.com/esengine/Railwise.git"
   },
   "bugs": {
-    "url": "https://github.com/esengine/DeepSeek-Reasonix/issues"
+    "url": "https://github.com/esengine/Railwise/issues"
   },
-  "homepage": "https://github.com/esengine/DeepSeek-Reasonix#readme",
+  "homepage": "https://github.com/esengine/Railwise#readme",
   "engines": {
     "node": ">=22"
   },

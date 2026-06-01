@@ -10,19 +10,36 @@ import {
 import { relaunch } from "@tauri-apps/plugin-process";
 import { type Update, check } from "@tauri-apps/plugin-updater";
 import { Suspense, lazy, useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import { CommandPalette, Toast, buildCommands, useCommandPalette } from "./CommandPalette";
 import { WorkspaceProvider } from "./Markdown";
-import {
-  nextAbortDraftCandidate,
-  restoreAbortedDraft,
-  type AbortDraftSource,
-} from "./abort-draft";
+import { type AbortDraftSource, nextAbortDraftCandidate, restoreAbortedDraft } from "./abort-draft";
 import { getLang, getLangLabel, getSupportedLangs, setLang, t, useLang } from "./i18n";
 import { I } from "./icons";
+import type {
+  CheckpointVerdict,
+  ChoiceVerdict,
+  ConfirmationChoice,
+  ExternalSessionApp,
+  ExternalSessionSource,
+  ImportedMcpServer,
+  IncomingEvent,
+  JobInfo,
+  McpSpecInfo,
+  MemoryDetail,
+  MemoryEntryInfo,
+  OutgoingCommand,
+  PlanVerdict,
+  RailwiseReadinessItem,
+  RevisionVerdict,
+  SettingsPatch,
+  SkillInfo,
+} from "./protocol";
+import type { QQDesktopSettingsState } from "./qq-settings";
 import {
+  type SlashSettingsCommand,
   buildSlashSettingsDescriptors,
   parseSlashSettingsCommand,
-  type SlashSettingsCommand,
 } from "./slash-settings";
 import {
   FONT_FAMILY,
@@ -41,52 +58,35 @@ import {
   isThemeStyle,
   themeForStyle,
 } from "./theme";
-import type {
-  CheckpointVerdict,
-  ChoiceVerdict,
-  ConfirmationChoice,
-  ExternalSessionApp,
-  ExternalSessionSource,
-  ImportedMcpServer,
-  IncomingEvent,
-  JobInfo,
-  McpSpecInfo,
-  MemoryDetail,
-  MemoryEntryInfo,
-  OutgoingCommand,
-  PlanVerdict,
-  RevisionVerdict,
-  SettingsPatch,
-  SkillInfo,
-} from "./protocol";
-import { type QQDesktopSettingsState } from "./qq-settings";
+import { AboutModal } from "./ui/about";
 import { Composer, type SlashCmd } from "./ui/composer";
 import { ContextPanel, type ContextPanelTab } from "./ui/context-panel";
 import { JobsPop } from "./ui/jobs-pop";
-import { useElapsed } from "./ui/live";
-import { AboutModal } from "./ui/about";
-import { SettingsModal, type PageId as SettingsPageId } from "./ui/settings";
 import { JumpBar } from "./ui/jump-bar";
-import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
+import { useElapsed } from "./ui/live";
+import { RailwiseProjectWizard } from "./ui/railwise-project-wizard";
+import { SettingsModal, type PageId as SettingsPageId } from "./ui/settings";
 import { Sidebar } from "./ui/sidebar";
 // 懒加载：测绘工作台体积较大（含 echarts），仅在打开时按需加载，避免拖累主包。
 const SurveyWorkbench = lazy(() =>
   import("./ui/survey-workbench").then((m) => ({ default: m.SurveyWorkbench })),
 );
+import { openUrl } from "@tauri-apps/plugin-opener";
+import {
+  type ApprovalSnapshot,
+  deriveDesktopNotifications,
+  dispatchDesktopNotifications,
+  shouldShowCompletionToast,
+} from "./notifications";
+import { parseEditResult } from "./ui/cards";
 import { Shortcut, localizeShortcutText, shortcutText } from "./ui/shortcut";
 import { Splash, shouldShowSplash } from "./ui/splash";
-import { StatusBar } from "./ui/statusbar";
 import {
   StartupFailure,
-  coerceStartupFailure,
   type StartupFailureState,
+  coerceStartupFailure,
 } from "./ui/startup-failure";
-import {
-  dispatchDesktopNotifications,
-  deriveDesktopNotifications,
-  shouldShowCompletionToast,
-  type ApprovalSnapshot,
-} from "./notifications";
+import { StatusBar } from "./ui/statusbar";
 import {
   ActivePlanTaskCard,
   AssistantMsg,
@@ -100,15 +100,13 @@ import {
   TurnDivider,
   UserMsg,
 } from "./ui/thread";
-import { WorkdirPop } from "./ui/workdir-pop";
-import { parseEditResult } from "./ui/cards";
-import { useAutoCollapse } from "./ui/useAutoCollapse";
-import { useResizable } from "./ui/useResizable";
-import { useAutoScroll } from "./ui/useAutoScroll";
-import { useDisableTextAssist } from "./ui/useDisableTextAssist";
 import { getThreadMaxWidth } from "./ui/thread-layout";
 import { elideTranscriptMessages } from "./ui/transcript-elision";
-import { openUrl } from "@tauri-apps/plugin-opener";
+import { useAutoCollapse } from "./ui/useAutoCollapse";
+import { useAutoScroll } from "./ui/useAutoScroll";
+import { useDisableTextAssist } from "./ui/useDisableTextAssist";
+import { useResizable } from "./ui/useResizable";
+import { WorkdirPop } from "./ui/workdir-pop";
 
 const RIGHT_SIDEBAR_COLLAPSE_WIDTH = 1120;
 const LEFT_SIDEBAR_COLLAPSE_WIDTH = 760;
@@ -358,6 +356,7 @@ type State = {
   sessionFiles: SessionFile[];
   memory: MemoryEntryInfo[];
   memoryDetail: MemoryDetail | null;
+  railwiseReadiness: RailwiseReadinessItem[];
   jobs: JobInfo[];
   /** Live "skill running" indicator — set when a `skill_run` RPC dispatches, cleared on `$turn_complete`. */
   activeSkill: SkillOrigin | null;
@@ -429,9 +428,7 @@ function fallbackSkillDesc(skill: SkillInfo): string {
         ? t("app.skill.scope.global")
         : t("app.skill.scope.project");
   const runAs =
-    skill.runAs === "subagent"
-      ? t("app.skill.runAs.subagent")
-      : t("app.skill.runAs.inline");
+    skill.runAs === "subagent" ? t("app.skill.runAs.subagent") : t("app.skill.runAs.inline");
   return t("app.skill.generic", { scope, runAs });
 }
 
@@ -461,7 +458,12 @@ function reduceRaw(state: State, action: Action): State {
         busy: true,
         messages: [
           ...state.messages,
-          { kind: "user", text: action.text, clientId: action.clientId, turn: nextMessageTurn(state.messages) },
+          {
+            kind: "user",
+            text: action.text,
+            clientId: action.clientId,
+            turn: nextMessageTurn(state.messages),
+          },
         ],
       };
     }
@@ -613,9 +615,7 @@ function reduceRaw(state: State, action: Action): State {
     case "dismiss_error":
       return {
         ...state,
-        messages: state.messages.filter(
-          (m) => !(m.kind === "error" && m.id === action.id),
-        ),
+        messages: state.messages.filter((m) => !(m.kind === "error" && m.id === action.id)),
       };
     case "mention_results":
       return { ...state, mentionResults: action.results };
@@ -690,16 +690,13 @@ function DiffStats({ stats }: { stats: FileStats }) {
   const total = stats.entries.length;
   return (
     <div className="diff-stats">
-      <button
-        type="button"
-        className="diff-stats-head"
-        onClick={() => setOpen((v) => !v)}
-      >
+      <button type="button" className="diff-stats-head" onClick={() => setOpen((v) => !v)}>
         <span className="ico">
           <I.diff size={11} />
         </span>
         <span>
-          {total} {total === 1 ? "file" : "files"} changed · +{stats.totalAdded} / −{stats.totalRemoved} {stats.totalRemoved === 1 ? "line" : "lines"}
+          {total} {total === 1 ? "file" : "files"} changed · +{stats.totalAdded} / −
+          {stats.totalRemoved} {stats.totalRemoved === 1 ? "line" : "lines"}
         </span>
         <span className="chev">{open ? <I.chev size={10} /> : <I.chevR size={10} />}</span>
       </button>
@@ -980,6 +977,19 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
       };
     case "$memory_detail":
       return { ...state, memoryDetail: ev.detail };
+    case "$railwise_readiness":
+      return { ...state, railwiseReadiness: Array.isArray(ev.checks) ? ev.checks : [] };
+    case "$railwise_project_init_result":
+      return {
+        ...state,
+        messages: [
+          ...state.messages,
+          {
+            kind: "status",
+            text: t("railwiseWizard.created", { path: ev.projectRoot }),
+          },
+        ],
+      };
     case "$jobs":
       return { ...state, jobs: ev.items };
     case "$balance":
@@ -1167,8 +1177,10 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
         const m = state.messages[i]!;
         if (m.kind !== "assistant" || m.turn !== ev.turn) continue;
         let updated = m;
-        if (ev.channel === "content") updated = { ...m, segments: appendTextSegment(m.segments, "text", ev.text) };
-        else if (ev.channel === "reasoning") updated = { ...m, segments: appendTextSegment(m.segments, "reasoning", ev.text) };
+        if (ev.channel === "content")
+          updated = { ...m, segments: appendTextSegment(m.segments, "text", ev.text) };
+        else if (ev.channel === "reasoning")
+          updated = { ...m, segments: appendTextSegment(m.segments, "reasoning", ev.text) };
         const next = [...state.messages];
         next[i] = updated;
         return { ...state, messages: next };
@@ -1178,8 +1190,7 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
     case "model.final": {
       const u = ev.usage;
       const promptTokens =
-        u?.prompt_tokens ??
-        (u?.prompt_cache_hit_tokens ?? 0) + (u?.prompt_cache_miss_tokens ?? 0);
+        u?.prompt_tokens ?? (u?.prompt_cache_hit_tokens ?? 0) + (u?.prompt_cache_miss_tokens ?? 0);
       const callHit = u?.prompt_cache_hit_tokens ?? 0;
       const callMiss = u?.prompt_cache_miss_tokens ?? Math.max(0, promptTokens - callHit);
       const hasCall = promptTokens > 0 || callHit > 0 || callMiss > 0;
@@ -1215,7 +1226,19 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
         if (m.kind !== "assistant" || m.turn !== ev.turn) continue;
         if (m.segments.some((s) => s.kind === "tool" && s.callId === ev.callId)) return state;
         const next = [...state.messages];
-        next[i] = { ...m, segments: [...m.segments, { kind: "tool" as const, callId: ev.callId, name: ev.name, args: "", startedAt: Date.now() }] };
+        next[i] = {
+          ...m,
+          segments: [
+            ...m.segments,
+            {
+              kind: "tool" as const,
+              callId: ev.callId,
+              name: ev.name,
+              args: "",
+              startedAt: Date.now(),
+            },
+          ],
+        };
         return { ...state, messages: next };
       }
       return state;
@@ -1229,13 +1252,26 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
         const idx = m.segments.findIndex((s) => s.kind === "tool" && s.callId === ev.callId);
         if (idx >= 0) {
           const segs = [...m.segments];
-          if (segs[idx]?.kind === "tool") segs[idx] = { ...(segs[idx] as AssistantSegment & { kind: "tool" }), args: ev.args };
+          if (segs[idx]?.kind === "tool")
+            segs[idx] = { ...(segs[idx] as AssistantSegment & { kind: "tool" }), args: ev.args };
           const msgs = [...nextState.messages];
           msgs[i] = { ...m, segments: segs };
           nextState = { ...nextState, messages: msgs };
         } else {
           const msgs = [...nextState.messages];
-          msgs[i] = { ...m, segments: [...m.segments, { kind: "tool" as const, callId: ev.callId, name: ev.name, args: ev.args, startedAt: Date.now() }] };
+          msgs[i] = {
+            ...m,
+            segments: [
+              ...m.segments,
+              {
+                kind: "tool" as const,
+                callId: ev.callId,
+                name: ev.name,
+                args: ev.args,
+                startedAt: Date.now(),
+              },
+            ],
+          };
           nextState = { ...nextState, messages: msgs };
         }
         break;
@@ -1267,10 +1303,7 @@ function applyIncomingRaw(state: State, ev: IncomingEvent): State {
       return {
         ...state,
         busy: false,
-        messages: [
-          ...state.messages,
-          { kind: "status", text: `≫ btw\n${ev.answer}` },
-        ],
+        messages: [...state.messages, { kind: "status", text: `≫ btw\n${ev.answer}` }],
       };
     case "status":
       return state;
@@ -1323,7 +1356,12 @@ function formatConversationMarkdown(messages: ChatMessage[], userLabel: string):
 }
 
 function sanitizeFilename(name: string): string {
-  return name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").replace(/^\.+/, "").slice(0, 200) || "session";
+  return (
+    name
+      .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+      .replace(/^\.+/, "")
+      .slice(0, 200) || "session"
+  );
 }
 
 function defaultExportFilename(session: string): string {
@@ -1427,6 +1465,7 @@ function TabRuntime({
     sessionFiles: [],
     memory: [],
     memoryDetail: null,
+    railwiseReadiness: [],
     jobs: [],
     activeSkill: null,
     queuedSends: [],
@@ -1447,12 +1486,12 @@ function TabRuntime({
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsPage, setSettingsPage] = useState<SettingsPageId>("general");
-  const [mcpEditTarget, setMcpEditTarget] = useState<{ raw: string; nonce: number } | null>(
-    null,
-  );
+  const [mcpEditTarget, setMcpEditTarget] = useState<{ raw: string; nonce: number } | null>(null);
   const [jobsOpen, setJobsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [surveyOpen, setSurveyOpen] = useState(false);
+  const [railwiseProjectOpen, setRailwiseProjectOpen] = useState(false);
+  const [railwiseProjectError, setRailwiseProjectError] = useState<string | null>(null);
   const [contextPanelTab, setContextPanelTab] = useState<ContextPanelTab>("files");
   const [contextPanelTabNonce, setContextPanelTabNonce] = useState(0);
   const previousApprovalSnapshotRef = useRef<ApprovalSnapshot>({
@@ -1554,6 +1593,28 @@ function TabRuntime({
     (raw: string) => sendRpc({ cmd: "mcp_specs_retry", raw }),
     [sendRpc],
   );
+  const refreshRailwiseReadiness = useCallback(
+    () => sendRpc({ cmd: "railwise_readiness_get" }),
+    [sendRpc],
+  );
+  const openRailwiseStatus = useCallback(() => {
+    setContextPanelTab("railwise");
+    setContextPanelTabNonce((nonce) => nonce + 1);
+    if (ctxCollapsed) onToggleCtx();
+    refreshRailwiseReadiness();
+  }, [ctxCollapsed, onToggleCtx, refreshRailwiseReadiness]);
+  const createRailwiseProject = useCallback(
+    (payload: { parentDir: string; projectName: string }) => {
+      setRailwiseProjectError(null);
+      if (!payload.parentDir.trim() || !payload.projectName.trim()) {
+        setRailwiseProjectError("Parent folder and project name are required.");
+        return;
+      }
+      setRailwiseProjectOpen(false);
+      sendRpc({ cmd: "railwise_project_init", ...payload });
+    },
+    [sendRpc],
+  );
   const newChat = useCallback(() => {
     clearAbortDraft();
     sendRpc({ cmd: "new_chat" });
@@ -1577,13 +1638,10 @@ function TabRuntime({
     }
   }, [clearAbortDraft, saveSettings, state.settings?.workspaceDir]);
 
-  const flashToast = useCallback(
-    (msg: string, opts?: { yolo?: boolean; duration?: number }) => {
-      setToast({ msg, yolo: opts?.yolo });
-      window.setTimeout(() => setToast(null), opts?.duration ?? 1600);
-    },
-    [],
-  );
+  const flashToast = useCallback((msg: string, opts?: { yolo?: boolean; duration?: number }) => {
+    setToast({ msg, yolo: opts?.yolo });
+    window.setTimeout(() => setToast(null), opts?.duration ?? 1600);
+  }, []);
 
   const importCcSwitchMcp = useCallback(async () => {
     try {
@@ -1706,10 +1764,7 @@ function TabRuntime({
         const handle = await webview.onDragDropEvent((event) => {
           if (!dropActiveRef.current) return;
           if (event.payload.type === "enter") {
-            document.body.style.setProperty(
-              "--drop-overlay-label",
-              `"${t("dragDrop.overlay")}"`,
-            );
+            document.body.style.setProperty("--drop-overlay-label", `"${t("dragDrop.overlay")}"`);
             document.body.dataset.dragOver = "1";
             return;
           }
@@ -1799,6 +1854,16 @@ function TabRuntime({
             return;
           }
         }
+        if (name === "railwise") {
+          const subcommand = args?.trim().toLowerCase() ?? "";
+          if (subcommand === "init" || subcommand === "new") {
+            setRailwiseProjectOpen(true);
+          } else {
+            openRailwiseStatus();
+          }
+          if (!override) setDraft("");
+          return;
+        }
         if (name === "skill" || name === "skills") {
           openSettingsAt("skills");
           if (!override) setDraft("");
@@ -1809,7 +1874,12 @@ function TabRuntime({
           const clientId = `skill-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
           const trimmedArgs = args?.trim() ?? "";
           recordAbortDraft("skill_run", text);
-          dispatch({ t: "start_skill", skill: { name: skill.name, runAs: skill.runAs }, args: trimmedArgs, clientId });
+          dispatch({
+            t: "start_skill",
+            skill: { name: skill.name, runAs: skill.runAs },
+            args: trimmedArgs,
+            clientId,
+          });
           sendRpc({ cmd: "skill_run", name: skill.name, args: trimmedArgs || undefined });
           if (!override) setDraft("");
           return;
@@ -1830,6 +1900,7 @@ function TabRuntime({
       recordAbortDraft,
       applySlashSettingsCommand,
       openSettingsAt,
+      openRailwiseStatus,
       runMcpSlashCommand,
     ],
   );
@@ -1879,17 +1950,30 @@ function TabRuntime({
   useEffect(() => {
     const currentSnapshot: ApprovalSnapshot = {
       confirms: state.pendingConfirms.map((c) => ({ id: c.id, command: c.command })),
-      pathAccess: state.pendingPathAccess.map((p) => ({ id: p.id, path: p.path, intent: p.intent })),
+      pathAccess: state.pendingPathAccess.map((p) => ({
+        id: p.id,
+        path: p.path,
+        intent: p.intent,
+      })),
       choices: state.pendingChoices.map((c) => ({ id: c.id, question: c.question })),
       plans: state.pendingPlans.map((p) => ({ id: p.id, summary: p.summary, plan: p.plan })),
-      checkpoints: state.pendingCheckpoints.map((c) => ({ id: c.id, title: c.title, result: c.result })),
-      revisions: state.pendingRevisions.map((r) => ({ id: r.id, summary: r.summary, reason: r.reason })),
+      checkpoints: state.pendingCheckpoints.map((c) => ({
+        id: c.id,
+        title: c.title,
+        result: c.result,
+      })),
+      revisions: state.pendingRevisions.map((r) => ({
+        id: r.id,
+        summary: r.summary,
+        reason: r.reason,
+      })),
     };
     const previousSnapshot = previousApprovalSnapshotRef.current;
     const wasBusy = wasBusyRef.current;
-    const busyDurationMs = wasBusy && !state.busy && busyStartedAtRef.current
-      ? Date.now() - busyStartedAtRef.current
-      : 0;
+    const busyDurationMs =
+      wasBusy && !state.busy && busyStartedAtRef.current
+        ? Date.now() - busyStartedAtRef.current
+        : 0;
 
     if (state.busy && busyStartedAtRef.current === null) {
       busyStartedAtRef.current = Date.now();
@@ -2009,12 +2093,7 @@ function TabRuntime({
   }, []);
 
   const [showJumpButton, setShowJumpButton] = useState(false);
-  const { scrollToBottom } = useAutoScroll(
-    threadRef,
-    threadInnerRef,
-    state.busy,
-    restoreScrollTop,
-  );
+  const { scrollToBottom } = useAutoScroll(threadRef, threadInnerRef, state.busy, restoreScrollTop);
 
   // Persist the transcript scroll offset per session so a restart reopens
   // the conversation where the user left it (#1244).
@@ -2057,6 +2136,11 @@ function TabRuntime({
     if (!active) return;
     loadQQSettings();
   }, [active, loadQQSettings]);
+
+  useEffect(() => {
+    if (!active) return;
+    refreshRailwiseReadiness();
+  }, [active, refreshRailwiseReadiness, state.settings?.workspaceDir]);
 
   useEffect(() => {
     // Every TabRuntime stays mounted (display:none on inactive), so each registers its own keydown — without this gate Cmd+N would fire newChat() in every tab and wipe the inactive ones' sessions.
@@ -2198,7 +2282,12 @@ function TabRuntime({
         composerRef.current?.focus();
       },
     },
-    { cmd: "/new", desc: t("app.cmd.newSession"), run: () => newChat(), kb: shortcutText(["mod", "N"]) },
+    {
+      cmd: "/new",
+      desc: t("app.cmd.newSession"),
+      run: () => newChat(),
+      kb: shortcutText(["mod", "N"]),
+    },
     { cmd: "/clear", desc: t("app.cmd.clearChat"), run: () => clearConversation() },
     { cmd: "/abort", desc: t("app.cmd.abort"), run: () => abort(), kb: "esc" },
     {
@@ -2222,6 +2311,12 @@ function TabRuntime({
     { cmd: "/mcp", desc: t("app.cmd.mcp"), run: () => openSettingsAt("mcp") },
     { cmd: "/mcp status", desc: t("app.cmd.mcpStatus"), run: openMcpStatus },
     { cmd: "/mcp retry", desc: t("app.cmd.mcpRetry"), run: retryFailedMcpSpecs },
+    { cmd: "/railwise", desc: t("app.cmd.railwiseStatus"), run: openRailwiseStatus },
+    {
+      cmd: "/railwise init",
+      desc: t("app.cmd.railwiseInit"),
+      run: () => setRailwiseProjectOpen(true),
+    },
     {
       cmd: "/mcp import",
       desc: t("app.cmd.mcpImport"),
@@ -2264,7 +2359,7 @@ function TabRuntime({
       cmd: "/feedback",
       desc: t("app.cmd.feedback"),
       run: () => {
-        void openUrl("https://github.com/esengine/DeepSeek-Reasonix/issues/new/choose").catch(
+        void openUrl("https://github.com/esengine/Railwise/issues/new/choose").catch(
           () => undefined,
         );
       },
@@ -2370,7 +2465,11 @@ function TabRuntime({
 
   return (
     <WorkspaceProvider
-      value={{ dir: state.settings?.workspaceDir, editor: state.settings?.editor, sessionFiles: state.sessionFiles }}
+      value={{
+        dir: state.settings?.workspaceDir,
+        editor: state.settings?.editor,
+        sessionFiles: state.sessionFiles,
+      }}
     >
       <div
         className="app"
@@ -2442,6 +2541,7 @@ function TabRuntime({
           onOpenCommands={() => palette.setOpen(true)}
           onOpenAbout={() => setAboutOpen(true)}
           onOpenSurvey={() => setSurveyOpen(true)}
+          onOpenRailwiseProject={() => setRailwiseProjectOpen(true)}
         />
 
         {!sideCollapsed ? (
@@ -2487,7 +2587,10 @@ function TabRuntime({
                         if (trimmed.startsWith("/")) {
                           const cmd = trimmed.split(/\s+/)[0] ?? "";
                           const match = slashCommands.find((s) => s.cmd === cmd);
-                          if (match) { match.run(); return; }
+                          if (match) {
+                            match.run();
+                            return;
+                          }
                         }
                         send(text);
                       }}
@@ -2502,15 +2605,19 @@ function TabRuntime({
                     followOutput={"auto"}
                     atBottomStateChange={(atBottom) => setShowJumpButton(!atBottom)}
                     components={{
-                      Header: state.activePlan ? () => (
-                        <div className="thread-inner">
-                          <PlanBanner
-                            plan={state.activePlan!}
-                            onDismiss={state.busy ? undefined : () => dispatch({ t: "dismiss_plan" })}
-                          />
-                          <ActivePlanTaskCard plan={state.activePlan!} />
-                        </div>
-                      ) : undefined,
+                      Header: state.activePlan
+                        ? () => (
+                            <div className="thread-inner">
+                              <PlanBanner
+                                plan={state.activePlan!}
+                                onDismiss={
+                                  state.busy ? undefined : () => dispatch({ t: "dismiss_plan" })
+                                }
+                              />
+                              <ActivePlanTaskCard plan={state.activePlan!} />
+                            </div>
+                          )
+                        : undefined,
                     }}
                     itemContent={(index) => {
                       const m = state.messages[index]!;
@@ -2555,15 +2662,89 @@ function TabRuntime({
                 ) : null}
               </div>
 
-              {state.pendingPlans.length > 0 || state.pendingCheckpoints.length > 0 || state.pendingRevisions.length > 0 || state.pendingConfirms.length > 0 || state.pendingPathAccess.length > 0 || state.pendingChoices.length > 0 || !state.ready ? (
-                <div style={{ maxWidth: "var(--thread-max-width, 740px)", margin: "0 auto", padding: "0 32px", width: "100%" }}>
-                  {state.pendingPlans.map((p) => (<PlanApprovalCard key={`pp-${p.id}`} p={p} onApprove={() => resolvePlan(p.id, { type: "approve" })} onRefine={() => resolvePlan(p.id, { type: "refine" })} onCancel={() => resolvePlan(p.id, { type: "cancel" })} />))}
-                  {state.pendingCheckpoints.map((c) => (<CheckpointApprovalCard key={`cp-${c.id}`} c={c} onContinue={() => resolveCheckpoint(c.id, { type: "continue" })} onRevise={() => resolveCheckpoint(c.id, { type: "revise" })} onStop={() => resolveCheckpoint(c.id, { type: "stop" })} />))}
-                  {state.pendingRevisions.map((r) => (<RevisionApprovalCard key={`rv-${r.id}`} r={r} onAccept={() => resolveRevision(r.id, { type: "accepted" })} onReject={() => resolveRevision(r.id, { type: "rejected" })} />))}
-                  {state.pendingConfirms.map((c) => (<ConfirmApprovalCard key={`cc-${c.id}`} prompt={c.prompt} onAllow={() => resolveConfirm(c.id, { type: "run_once" })} onAlwaysAllow={(prefix) => resolveConfirm(c.id, { type: "always_allow", prefix })} onDeny={() => resolveConfirm(c.id, { type: "deny" })} />))}
-                  {state.pendingPathAccess.map((p) => (<PathAccessApprovalCard key={`pa-${p.id}`} prompt={p.prompt} onAllow={() => resolvePathAccess(p.id, { type: "run_once" })} onAlwaysAllow={(prefix) => resolvePathAccess(p.id, { type: "always_allow", prefix })} onDeny={() => resolvePathAccess(p.id, { type: "deny" })} />))}
-                  {state.pendingChoices.map((c) => (<ChoiceApprovalCard key={`ch-${c.id}`} c={c} onPick={(optionId) => resolveChoice(c.id, { type: "pick", optionId })} onCancel={() => resolveChoice(c.id, { type: "cancel" })} />))}
-                  {!state.ready ? (<div style={{ padding: 12, color: "var(--muted)", fontFamily: "Geist Mono, monospace", fontSize: 11 }}>{t("app.connecting")}</div>) : null}
+              {state.pendingPlans.length > 0 ||
+              state.pendingCheckpoints.length > 0 ||
+              state.pendingRevisions.length > 0 ||
+              state.pendingConfirms.length > 0 ||
+              state.pendingPathAccess.length > 0 ||
+              state.pendingChoices.length > 0 ||
+              !state.ready ? (
+                <div
+                  style={{
+                    maxWidth: "var(--thread-max-width, 740px)",
+                    margin: "0 auto",
+                    padding: "0 32px",
+                    width: "100%",
+                  }}
+                >
+                  {state.pendingPlans.map((p) => (
+                    <PlanApprovalCard
+                      key={`pp-${p.id}`}
+                      p={p}
+                      onApprove={() => resolvePlan(p.id, { type: "approve" })}
+                      onRefine={() => resolvePlan(p.id, { type: "refine" })}
+                      onCancel={() => resolvePlan(p.id, { type: "cancel" })}
+                    />
+                  ))}
+                  {state.pendingCheckpoints.map((c) => (
+                    <CheckpointApprovalCard
+                      key={`cp-${c.id}`}
+                      c={c}
+                      onContinue={() => resolveCheckpoint(c.id, { type: "continue" })}
+                      onRevise={() => resolveCheckpoint(c.id, { type: "revise" })}
+                      onStop={() => resolveCheckpoint(c.id, { type: "stop" })}
+                    />
+                  ))}
+                  {state.pendingRevisions.map((r) => (
+                    <RevisionApprovalCard
+                      key={`rv-${r.id}`}
+                      r={r}
+                      onAccept={() => resolveRevision(r.id, { type: "accepted" })}
+                      onReject={() => resolveRevision(r.id, { type: "rejected" })}
+                    />
+                  ))}
+                  {state.pendingConfirms.map((c) => (
+                    <ConfirmApprovalCard
+                      key={`cc-${c.id}`}
+                      prompt={c.prompt}
+                      onAllow={() => resolveConfirm(c.id, { type: "run_once" })}
+                      onAlwaysAllow={(prefix) =>
+                        resolveConfirm(c.id, { type: "always_allow", prefix })
+                      }
+                      onDeny={() => resolveConfirm(c.id, { type: "deny" })}
+                    />
+                  ))}
+                  {state.pendingPathAccess.map((p) => (
+                    <PathAccessApprovalCard
+                      key={`pa-${p.id}`}
+                      prompt={p.prompt}
+                      onAllow={() => resolvePathAccess(p.id, { type: "run_once" })}
+                      onAlwaysAllow={(prefix) =>
+                        resolvePathAccess(p.id, { type: "always_allow", prefix })
+                      }
+                      onDeny={() => resolvePathAccess(p.id, { type: "deny" })}
+                    />
+                  ))}
+                  {state.pendingChoices.map((c) => (
+                    <ChoiceApprovalCard
+                      key={`ch-${c.id}`}
+                      c={c}
+                      onPick={(optionId) => resolveChoice(c.id, { type: "pick", optionId })}
+                      onCancel={() => resolveChoice(c.id, { type: "cancel" })}
+                    />
+                  ))}
+                  {!state.ready ? (
+                    <div
+                      style={{
+                        padding: 12,
+                        color: "var(--muted)",
+                        fontFamily: "Geist Mono, monospace",
+                        fontSize: 11,
+                      }}
+                    >
+                      {t("app.connecting")}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -2634,12 +2815,15 @@ function TabRuntime({
           sessionFiles={state.sessionFiles}
           memory={state.memory}
           memoryDetail={state.memoryDetail}
+          railwiseReadiness={state.railwiseReadiness}
           activeTab={contextPanelTab}
           activeTabNonce={contextPanelTabNonce}
           onReadMemory={(path) => sendRpc({ cmd: "memory_read", path })}
           onOpenMcpSettings={() => openSettingsAt("mcp")}
           onEditMcpSpec={openMcpEditor}
           onRetryMcpSpec={retryMcpSpec}
+          onRefreshRailwiseReadiness={refreshRailwiseReadiness}
+          onInitRailwiseProject={() => setRailwiseProjectOpen(true)}
         />
 
         <StatusBar
@@ -2657,6 +2841,8 @@ function TabRuntime({
           onSetThemeStyle={onSetThemeStyle}
           onToggleCurrency={onToggleCurrency}
           onOpenSettings={() => openSettingsAt("general")}
+          railwiseReadiness={state.railwiseReadiness}
+          onOpenRailwise={openRailwiseStatus}
           onOpenWorkdir={(anchor) => {
             setWdAnchor(anchor);
             setWdOpen(true);
@@ -2692,6 +2878,25 @@ function TabRuntime({
           <Suspense fallback={null}>
             <SurveyWorkbench onClose={() => setSurveyOpen(false)} />
           </Suspense>
+        ) : null}
+
+        {railwiseProjectOpen ? (
+          <RailwiseProjectWizard
+            defaultParent={state.settings?.workspaceDir}
+            busy={false}
+            error={railwiseProjectError}
+            onClose={() => setRailwiseProjectOpen(false)}
+            onPickParent={async () => {
+              const picked = await openDialog({
+                directory: true,
+                multiple: false,
+                title: t("railwiseWizard.parent"),
+                defaultPath: state.settings?.workspaceDir,
+              });
+              return typeof picked === "string" && picked.length > 0 ? picked : null;
+            }}
+            onCreate={createRailwiseProject}
+          />
         ) : null}
 
         {settingsOpen && state.settings ? (
@@ -2765,23 +2970,63 @@ function WinMinimize() {
 function WinMaximize() {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
-      <rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor" strokeWidth="1" />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="9"
+        height="9"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
     </svg>
   );
 }
 function WinRestore() {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
-      <rect x="2.5" y="0.5" width="7" height="7" fill="none" stroke="currentColor" strokeWidth="1" />
-      <rect x="0.5" y="2.5" width="7" height="7" fill="var(--bg-2, #eee)" stroke="currentColor" strokeWidth="1" />
+      <rect
+        x="2.5"
+        y="0.5"
+        width="7"
+        height="7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <rect
+        x="0.5"
+        y="2.5"
+        width="7"
+        height="7"
+        fill="var(--bg-2, #eee)"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
     </svg>
   );
 }
 function WinClose() {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
-      <line x1="0.5" y1="0.5" x2="9.5" y2="9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="9.5" y1="0.5" x2="0.5" y2="9.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line
+        x1="0.5"
+        y1="0.5"
+        x2="9.5"
+        y2="9.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="9.5"
+        y1="0.5"
+        x2="0.5"
+        y2="9.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -2826,13 +3071,21 @@ function TitleBar({
     };
     void syncWindowState();
     let unlisten: (() => void) | undefined;
-    win.listen("tauri://resize", async () => {
-      await syncWindowState();
-    }).then((fn) => { unlisten = fn; });
+    win
+      .listen("tauri://resize", async () => {
+        await syncWindowState();
+      })
+      .then((fn) => {
+        unlisten = fn;
+      });
     let fullscreenUnlisten: (() => void) | undefined;
-    win.listen("tauri://fullscreen", async () => {
-      await syncWindowState();
-    }).then((fn) => { fullscreenUnlisten = fn; });
+    win
+      .listen("tauri://fullscreen", async () => {
+        await syncWindowState();
+      })
+      .then((fn) => {
+        fullscreenUnlisten = fn;
+      });
     return () => {
       unlisten?.();
       fullscreenUnlisten?.();
@@ -2945,39 +3198,89 @@ function TitleBar({
           {menuOpen ? (
             <div
               className="popup"
-              style={{ top: "calc(100% + 6px)", right: 0, left: "auto", bottom: "auto", width: 220 }}
+              style={{
+                top: "calc(100% + 6px)",
+                right: 0,
+                left: "auto",
+                bottom: "auto",
+                width: 220,
+              }}
             >
               <div className="popup-list">
-                <div className="popup-item" onClick={() => { onOpenCommands(); setMenuOpen(false); }}>
-                  <span className="ico"><I.search size={12} /></span>
-                  <div className="nm"><span>{t("app.titlebar.commandPalette")}</span></div>
+                <div
+                  className="popup-item"
+                  onClick={() => {
+                    onOpenCommands();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <span className="ico">
+                    <I.search size={12} />
+                  </span>
+                  <div className="nm">
+                    <span>{t("app.titlebar.commandPalette")}</span>
+                  </div>
                   <span className="kb">
                     <Shortcut keys={["mod", "K"]} />
                   </span>
                 </div>
                 <div
                   className="popup-item"
-                  onClick={() => { if (hasMessages) onCopy(); setMenuOpen(false); }}
+                  onClick={() => {
+                    if (hasMessages) onCopy();
+                    setMenuOpen(false);
+                  }}
                   style={{ opacity: hasMessages ? 1 : 0.5 }}
                 >
-                  <span className="ico"><I.copy size={12} /></span>
-                  <div className="nm"><span>{t("app.titlebar.copyMd")}</span></div>
+                  <span className="ico">
+                    <I.copy size={12} />
+                  </span>
+                  <div className="nm">
+                    <span>{t("app.titlebar.copyMd")}</span>
+                  </div>
                 </div>
                 <div
                   className="popup-item"
-                  onClick={() => { if (hasMessages) onExport(); setMenuOpen(false); }}
+                  onClick={() => {
+                    if (hasMessages) onExport();
+                    setMenuOpen(false);
+                  }}
                   style={{ opacity: hasMessages ? 1 : 0.5 }}
                 >
-                  <span className="ico"><I.download size={12} /></span>
-                  <div className="nm"><span>{t("app.titlebar.exportMd")}</span></div>
+                  <span className="ico">
+                    <I.download size={12} />
+                  </span>
+                  <div className="nm">
+                    <span>{t("app.titlebar.exportMd")}</span>
+                  </div>
                 </div>
-                <div className="popup-item" onClick={() => { onClear(); setMenuOpen(false); }}>
-                  <span className="ico"><I.x size={12} /></span>
-                  <div className="nm"><span>{t("app.titlebar.clearChat")}</span></div>
+                <div
+                  className="popup-item"
+                  onClick={() => {
+                    onClear();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <span className="ico">
+                    <I.x size={12} />
+                  </span>
+                  <div className="nm">
+                    <span>{t("app.titlebar.clearChat")}</span>
+                  </div>
                 </div>
-                <div className="popup-item" onClick={() => { onOpenSettings(); setMenuOpen(false); }}>
-                  <span className="ico"><I.cog size={12} /></span>
-                  <div className="nm"><span>{t("app.titlebar.settings")}</span></div>
+                <div
+                  className="popup-item"
+                  onClick={() => {
+                    onOpenSettings();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <span className="ico">
+                    <I.cog size={12} />
+                  </span>
+                  <div className="nm">
+                    <span>{t("app.titlebar.settings")}</span>
+                  </div>
                   <span className="kb">
                     <Shortcut keys={["mod", ","]} />
                   </span>
@@ -2994,7 +3297,10 @@ function TitleBar({
               type="button"
               className="win-ctrl"
               title={t("app.titlebar.minimize")}
-              onMouseDown={(e) => { e.stopPropagation(); win.minimize(); }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                win.minimize();
+              }}
             >
               <WinMinimize />
             </button>
@@ -3002,7 +3308,10 @@ function TitleBar({
               type="button"
               className="win-ctrl"
               title={isMaximized ? t("app.titlebar.restore") : t("app.titlebar.maximize")}
-              onMouseDown={(e) => { e.stopPropagation(); void toggleWindowExpanded(win, false, isMaximized); }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                void toggleWindowExpanded(win, false, isMaximized);
+              }}
             >
               {isMaximized ? <WinRestore /> : <WinMaximize />}
             </button>
@@ -3010,7 +3319,10 @@ function TitleBar({
               type="button"
               className="win-ctrl close"
               title={t("app.titlebar.close")}
-              onMouseDown={(e) => { e.stopPropagation(); win.close(); }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                win.close();
+              }}
             >
               <WinClose />
             </button>
@@ -3070,7 +3382,11 @@ function TabBar({
           </div>
         );
       })}
-      <div className="tab newtab" title={localizeShortcutText(t("app.tab.newTabTitle"))} onClick={onNew}>
+      <div
+        className="tab newtab"
+        title={localizeShortcutText(t("app.tab.newTabTitle"))}
+        onClick={onNew}
+      >
         <I.plus size={12} />
         <span style={{ fontSize: 11, marginLeft: 4 }}>{t("app.tab.newTab")}</span>
       </div>
@@ -3523,7 +3839,7 @@ export function App() {
     const stack =
       fontFamily === FONT_FAMILY.CUSTOM && custom
         ? custom
-        : FONT_FAMILY_STACK[fontFamily] ?? FONT_FAMILY_STACK.sans;
+        : (FONT_FAMILY_STACK[fontFamily] ?? FONT_FAMILY_STACK.sans);
     document.documentElement.style.setProperty("--font-sans", stack);
     localStorage.setItem("reasonix.fontFamily", fontFamily);
     localStorage.setItem("reasonix.customFontFamily", customFontFamily);

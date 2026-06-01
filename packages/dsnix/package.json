@@ -17,14 +17,14 @@
     "ai",
     "alias"
   ],
-  "homepage": "https://github.com/esengine/DeepSeek-Reasonix",
+  "homepage": "https://github.com/esengine/Railwise",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/esengine/DeepSeek-Reasonix.git",
+    "url": "git+https://github.com/esengine/Railwise.git",
     "directory": "packages/dsnix"
   },
   "bugs": {
-    "url": "https://github.com/esengine/DeepSeek-Reasonix/issues"
+    "url": "https://github.com/esengine/Railwise/issues"
   },
   "license": "MIT",
   "engines": {

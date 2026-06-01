@@ -1755,7 +1755,7 @@ function TabRuntime({
       cmd: "/feedback",
       desc: t("app.cmd.feedback"),
       run: () => {
-        void openUrl("https://github.com/esengine/DeepSeek-Reasonix/issues/new/choose").catch(
+        void openUrl("https://github.com/esengine/Railwise/issues/new/choose").catch(
           () => undefined,
         );
       },

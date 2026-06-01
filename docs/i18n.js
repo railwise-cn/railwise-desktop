@@ -440,7 +440,7 @@
 
   async function loadVersion() {
     try {
-      const r = await fetch("https://registry.npmjs.org/reasonix/latest", {
+      const r = await fetch("https://registry.npmjs.org/railwise/latest", {
         cache: "no-cache",
       });
       if (!r.ok) return;
@@ -490,21 +490,21 @@
   }
 
   // Public API for sibling scripts (term-anim.js).
-  window.Reasonix = window.Reasonix || {};
-  window.Reasonix.t = function (key) {
+  window.Railwise = window.Railwise || {};
+  window.Railwise.t = function (key) {
     const dict = translations[currentLang] || translations[DEFAULT_LANG];
     return dict[key];
   };
-  window.Reasonix.lang = function () {
+  window.Railwise.lang = function () {
     return currentLang;
   };
-  window.Reasonix.onLangChange = function (fn) {
+  window.Railwise.onLangChange = function (fn) {
     if (typeof fn === "function") langListeners.push(fn);
   };
-  window.Reasonix.version = function () {
+  window.Railwise.version = function () {
     return currentVersion;
   };
-  window.Reasonix.onVersionChange = function (fn) {
+  window.Railwise.onVersionChange = function (fn) {
     if (typeof fn === "function") versionListeners.push(fn);
   };
 

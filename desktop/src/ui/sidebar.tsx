@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { open as openFileDialog } from "@tauri-apps/plugin-dialog";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { SessionInfo } from "../App";
 import { t, useLang } from "../i18n";
 import { I } from "../icons";
@@ -66,6 +66,7 @@ export function Sidebar({
   onOpenCommands,
   onOpenAbout,
   onOpenSurvey,
+  onOpenRailwiseProject,
 }: {
   sessions: SessionInfo[];
   importSources: ExternalSessionApp[];
@@ -84,6 +85,7 @@ export function Sidebar({
   onOpenCommands: () => void;
   onOpenAbout: () => void;
   onOpenSurvey: () => void;
+  onOpenRailwiseProject: () => void;
 }) {
   useLang();
   const [query, setQuery] = useState("");
@@ -97,9 +99,7 @@ export function Sidebar({
   const filtered = query
     ? sessions.filter((s) => {
         const q = query.toLowerCase();
-        return (
-          prettyName(s).toLowerCase().includes(q) || s.name.toLowerCase().includes(q)
-        );
+        return prettyName(s).toLowerCase().includes(q) || s.name.toLowerCase().includes(q);
       })
     : sessions;
 
@@ -129,6 +129,14 @@ export function Sidebar({
           <I.plus size={14} />
           <span>{t("sidebarPanel.newChat")}</span>
           <Shortcut keys={["mod", "N"]} />
+        </button>
+        <button
+          type="button"
+          className="icon-btn"
+          title={t("sidebarPanel.newRailwiseProject")}
+          onClick={onOpenRailwiseProject}
+        >
+          <I.folder size={14} />
         </button>
         <button
           type="button"
@@ -551,7 +559,12 @@ function SessionImportPopover({
     >
       <div className="head">
         <span>{t("sidebarPanel.importSessions")}</span>
-        <button type="button" className="close" onClick={onCancel} aria-label={t("sidebarPanel.cancel")}>
+        <button
+          type="button"
+          className="close"
+          onClick={onCancel}
+          aria-label={t("sidebarPanel.cancel")}
+        >
           <I.x size={12} />
         </button>
       </div>
@@ -622,54 +635,58 @@ function SessionImportPopover({
         </>
       ) : (
         <>
-      <div className="field">
-        <span className="label">{t("sidebarPanel.importSource")}</span>
-        <div className="seg">
-          <button type="button" data-on={source === "claude"} onClick={() => setSource("claude")}>
-            {t("sidebarPanel.importFromClaude")}
-          </button>
-          <button type="button" data-on={source === "codex"} onClick={() => setSource("codex")}>
-            {t("sidebarPanel.importFromCodex")}
-          </button>
-        </div>
-      </div>
-      <div className="field">
-        <span className="label">{t("sidebarPanel.importPath")}</span>
-        <div className="path-row">
-          <input
-            ref={firstInputRef}
-            value={path}
-            placeholder={t("sidebarPanel.importPath")}
-            onChange={(e) => setPath(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && path.trim()) submit();
-            }}
-          />
-          <button type="button" onClick={() => void browse()}>
-            {t("sidebarPanel.browse")}
-          </button>
-        </div>
-      </div>
-      <div className="field">
-        <span className="label">{t("sidebarPanel.importName")}</span>
-        <input
-          value={name}
-          placeholder={t("sidebarPanel.importNamePlaceholder")}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && path.trim()) submit();
-          }}
-        />
-      </div>
-      <div className="actions">
-        <button type="button" className="cancel" onClick={onCancel}>
-          {t("sidebarPanel.cancel")}
-        </button>
-        <button type="button" className="confirm" disabled={!path.trim()} onClick={submit}>
-          <I.upload size={11} />
-          {t("sidebarPanel.importConfirm")}
-        </button>
-      </div>
+          <div className="field">
+            <span className="label">{t("sidebarPanel.importSource")}</span>
+            <div className="seg">
+              <button
+                type="button"
+                data-on={source === "claude"}
+                onClick={() => setSource("claude")}
+              >
+                {t("sidebarPanel.importFromClaude")}
+              </button>
+              <button type="button" data-on={source === "codex"} onClick={() => setSource("codex")}>
+                {t("sidebarPanel.importFromCodex")}
+              </button>
+            </div>
+          </div>
+          <div className="field">
+            <span className="label">{t("sidebarPanel.importPath")}</span>
+            <div className="path-row">
+              <input
+                ref={firstInputRef}
+                value={path}
+                placeholder={t("sidebarPanel.importPath")}
+                onChange={(e) => setPath(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && path.trim()) submit();
+                }}
+              />
+              <button type="button" onClick={() => void browse()}>
+                {t("sidebarPanel.browse")}
+              </button>
+            </div>
+          </div>
+          <div className="field">
+            <span className="label">{t("sidebarPanel.importName")}</span>
+            <input
+              value={name}
+              placeholder={t("sidebarPanel.importNamePlaceholder")}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && path.trim()) submit();
+              }}
+            />
+          </div>
+          <div className="actions">
+            <button type="button" className="cancel" onClick={onCancel}>
+              {t("sidebarPanel.cancel")}
+            </button>
+            <button type="button" className="confirm" disabled={!path.trim()} onClick={submit}>
+              <I.upload size={11} />
+              {t("sidebarPanel.importConfirm")}
+            </button>
+          </div>
         </>
       )}
     </div>

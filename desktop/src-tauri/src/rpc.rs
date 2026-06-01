@@ -135,7 +135,7 @@ fn find_real_node() -> Result<PathBuf> {
         }
     }
     Err(anyhow!(
-        "node not found in PATH or only stub binaries present.{}\nInstall Node 22 from nodejs.org and reopen Reasonix.",
+        "node not found in PATH or only stub binaries present.{}\nInstall Node 22 from nodejs.org and reopen Railwise.",
         if tried.is_empty() {
             String::new()
         } else {

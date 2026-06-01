@@ -1,0 +1,17 @@
+{
+  "design": {
+    "x": 358688.214,
+    "y": 3321266.508,
+    "z": -18.362,
+    "azimuthDegrees": 42.185
+  },
+  "actual": {
+    "x": 358688.244,
+    "y": 3321266.526,
+    "z": -18.326,
+    "azimuthDegrees": 42.221
+  },
+  "horizontalToleranceMm": 50,
+  "verticalToleranceMm": 30,
+  "azimuthToleranceDeg": 0.05
+}

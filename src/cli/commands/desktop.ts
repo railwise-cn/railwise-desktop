@@ -127,6 +127,8 @@ import {
   timestampSuffix,
 } from "../../memory/session.js";
 import { QQChannel } from "../../qq/channel.js";
+import { initRailwiseProject } from "../../railwise/project-init.js";
+import { runRailwiseReadinessChecks } from "../../railwise/readiness.js";
 import {
   type ExternalSessionSource,
   discoverExternalSessionApps,
@@ -267,6 +269,8 @@ type InMessage = { tabId?: string } & (
   | { cmd: "mcp_specs_retry"; raw: string }
   | { cmd: "skills_get" }
   | { cmd: "skill_run"; name: string; args?: string }
+  | { cmd: "railwise_readiness_get" }
+  | { cmd: "railwise_project_init"; parentDir: string; projectName: string }
   | { cmd: "jobs_list" }
   | { cmd: "jobs_stop"; jobId: number }
   | { cmd: "jobs_stop_all" }
@@ -569,6 +573,22 @@ interface MemoryDetailEvent {
   detail: MemoryEntryDetail;
 }
 
+interface RailwiseReadinessEvent {
+  type: "$railwise_readiness";
+  checks: Array<{
+    id: string;
+    label: string;
+    level: "ok" | "warn" | "fail";
+    detail: string;
+  }>;
+}
+
+interface RailwiseProjectInitResultEvent {
+  type: "$railwise_project_init_result";
+  projectRoot: string;
+  createdFiles: string[];
+}
+
 interface SkillInfo {
   name: string;
   description: string;
@@ -655,6 +675,8 @@ type EmittableEvent =
   | CtxBreakdownEvent
   | MemoryEvent
   | MemoryDetailEvent
+  | RailwiseReadinessEvent
+  | RailwiseProjectInitResultEvent
   | JobsEvent;
 
 const STDOUT_BACKPRESSURE_WAIT = new Int32Array(new SharedArrayBuffer(4));
@@ -1284,6 +1306,17 @@ function emitMemory(tab: Tab): void {
     emit({ type: "$memory", entries }, tab.id);
   } catch (err) {
     emit({ type: "$error", message: `memory_get failed: ${(err as Error).message}` }, tab.id);
+  }
+}
+
+function emitRailwiseReadiness(tab: Tab): void {
+  try {
+    emit({ type: "$railwise_readiness", checks: runRailwiseReadinessChecks(tab.rootDir) }, tab.id);
+  } catch (err) {
+    emit(
+      { type: "$error", message: `railwise_readiness failed: ${(err as Error).message}` },
+      tab.id,
+    );
   }
 }
 
@@ -2390,6 +2423,9 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
     emitSessions(tab);
     emitSettings(tab);
     emitSkills(tab);
+    emitMcpSpecs(tab);
+    emitMemory(tab);
+    emitRailwiseReadiness(tab);
     persistOpenTabs();
   }
 
@@ -2730,6 +2766,7 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
     emitMcpSpecs(tab);
     emitSkills(tab);
     emitMemory(tab);
+    emitRailwiseReadiness(tab);
     emitQQSettings(tab);
     if (restoredMessages) {
       const meta = loadSessionMeta(tab.currentSession);
@@ -2903,6 +2940,7 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
         emitMcpSpecs(t);
         emitSkills(t);
         emitMemory(t);
+        emitRailwiseReadiness(t);
         emitQQSettings(t);
         if (!hasKey) emit({ type: "$needs_setup", reason: "no_api_key" }, t.id);
         else if (t.toolset) emit({ type: "$ready" }, t.id);
@@ -3078,6 +3116,33 @@ export async function desktopCommand(opts: DesktopOptions): Promise<void> {
     }
     if (msg.cmd === "skills_get") {
       emitSkills(tab);
+      return;
+    }
+    if (msg.cmd === "railwise_readiness_get") {
+      emitRailwiseReadiness(tab);
+      return;
+    }
+    if (msg.cmd === "railwise_project_init") {
+      try {
+        const result = initRailwiseProject({
+          parentDir: msg.parentDir,
+          projectName: msg.projectName,
+        });
+        emit(
+          {
+            type: "$railwise_project_init_result",
+            projectRoot: result.projectRoot,
+            createdFiles: result.createdFiles,
+          },
+          tab.id,
+        );
+        void switchWorkspace(tab, result.projectRoot);
+      } catch (err) {
+        emit(
+          { type: "$error", message: `railwise_project_init: ${(err as Error).message}` },
+          tab.id,
+        );
+      }
       return;
     }
     if (msg.cmd === "skill_run") {

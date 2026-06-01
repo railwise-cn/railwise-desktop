@@ -68,7 +68,7 @@ export function generateSshDryRunReport(uri: SshUri, ssh: SshProbe | null): stri
   const sq = shellQuote;
   const sections = [
     `railwise ${VERSION}  ·  SSH remote workspace RFC dry-run`,
-    "issue: https://github.com/esengine/DeepSeek-Reasonix/issues/2140",
+    "issue: https://github.com/esengine/Railwise/issues/2140",
     "",
     `target:  ${sq(`ssh://${uri.user}@${uri.host}:${uri.port}${uri.path}`)}`,
     "",

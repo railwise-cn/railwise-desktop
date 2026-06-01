@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-label="Reasonix — DeepSeek-native AI coding agent for your terminal">
-  <title>Reasonix social card</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-label="Railwise — DeepSeek-native AI coding agent for your terminal">
+  <title>Railwise social card</title>
   <defs>
     <style>
       .mono { font-family: Consolas, "Courier New", monospace; font-weight: 500; }
@@ -34,7 +34,7 @@
     <circle cx="22" cy="20" r="6" fill="#ff8b81"/>
     <circle cx="42" cy="20" r="6" fill="#f0b07d"/>
     <circle cx="62" cy="20" r="6" fill="#7ee787"/>
-    <text x="560" y="25" text-anchor="middle" class="mono" font-size="12" fill="url(#brand)">reasonix code</text>
+    <text x="560" y="25" text-anchor="middle" class="mono" font-size="12" fill="url(#brand)">railwise code</text>
     <line x1="0" y1="40" x2="1120" y2="40" stroke="#1e2436"/>
     <g class="mono" font-size="18">
       <text x="20" y="74"><tspan fill="#79c0ff">›</tspan><tspan fill="#c9d1d9" xml:space="preserve"> fix the case-sensitivity bug in findByEmail</tspan></text>
@@ -50,5 +50,5 @@
     </text>
   </g>
 
-  <text x="1200" y="600" text-anchor="end" class="mono" font-size="14" fill="#484f58">github.com/esengine/reasonix</text>
+  <text x="1200" y="600" text-anchor="end" class="mono" font-size="14" fill="#484f58">github.com/esengine/Railwise</text>
 </svg>

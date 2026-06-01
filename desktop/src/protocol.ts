@@ -248,6 +248,26 @@ export type MemoryDetailEvent = {
   detail: MemoryDetail;
 };
 
+export type RailwiseReadinessLevel = "ok" | "warn" | "fail";
+
+export type RailwiseReadinessItem = {
+  id: string;
+  label: string;
+  level: RailwiseReadinessLevel;
+  detail: string;
+};
+
+export type RailwiseReadinessEvent = {
+  type: "$railwise_readiness";
+  checks: RailwiseReadinessItem[];
+};
+
+export type RailwiseProjectInitResultEvent = {
+  type: "$railwise_project_init_result";
+  projectRoot: string;
+  createdFiles: string[];
+};
+
 export type RetryResultEvent = { type: "$retry_result"; text: string };
 
 export type BtwResultEvent = { type: "$btw_result"; question: string; answer: string };
@@ -552,6 +572,8 @@ export type IncomingEvent = { tabId?: string } & (
   | CtxBreakdownEvent
   | MemoryEvent
   | MemoryDetailEvent
+  | RailwiseReadinessEvent
+  | RailwiseProjectInitResultEvent
   | JobsEvent
   | UserMessageEvent
   | ModelTurnStartedEvent
@@ -605,6 +627,8 @@ export type OutgoingCommand = { tabId?: string } & (
   | { cmd: "mcp_specs_retry"; raw: string }
   | { cmd: "skills_get" }
   | { cmd: "skill_run"; name: string; args?: string }
+  | { cmd: "railwise_readiness_get" }
+  | { cmd: "railwise_project_init"; parentDir: string; projectName: string }
   | { cmd: "jobs_list" }
   | { cmd: "jobs_stop"; jobId: number }
   | { cmd: "jobs_stop_all" }

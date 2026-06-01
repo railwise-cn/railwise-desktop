@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 import type { DoctorCheck } from "../cli/commands/doctor.js";
 import { loadDotMcpJson } from "../mcp/dot-mcp-json.js";
 import { SkillStore } from "../skills.js";
@@ -62,8 +62,25 @@ function looksLikeBundledRailwise(projectRoot: string): boolean {
   return (
     existsSync(join(projectRoot, "REASONIX.md")) &&
     existsSync(join(projectRoot, ".mcp.json")) &&
-    existsSync(join(projectRoot, "survey-mcp", "package.json"))
+    existsSync(join(projectRoot, ".reasonix", "skills"))
   );
+}
+
+function resolveSurveyEntry(
+  projectRoot: string,
+  survey: unknown,
+): { entry: string; abs: string } | null {
+  if (!survey || typeof survey !== "object") return null;
+  const raw = survey as { args?: unknown; cwd?: unknown };
+  const args = Array.isArray(raw.args)
+    ? raw.args.filter((arg): arg is string => typeof arg === "string")
+    : [];
+  const entry = args.find((arg) => arg.replace(/\\/g, "/").endsWith("survey-mcp/dist/index.js"));
+  if (!entry) return null;
+  if (isAbsolute(entry)) return { entry, abs: entry };
+  const cwd =
+    typeof raw.cwd === "string" && raw.cwd.trim() ? resolve(projectRoot, raw.cwd) : projectRoot;
+  return { entry, abs: resolve(cwd, entry) };
 }
 
 export function runRailwiseReadinessChecks(projectRoot: string): DoctorCheck[] {
@@ -73,8 +90,8 @@ export function runRailwiseReadinessChecks(projectRoot: string): DoctorCheck[] {
   const reasonix = join(projectRoot, "REASONIX.md");
   const mcp = loadDotMcpJson(projectRoot);
   const survey = mcp?.survey;
-  const surveyArgs = Array.isArray(survey?.args) ? survey.args : [];
-  const surveyDist = join(projectRoot, "survey-mcp", "dist", "index.js");
+  const surveyEntry = resolveSurveyEntry(projectRoot, survey);
+  const surveyDist = surveyEntry?.abs ?? join(projectRoot, "survey-mcp", "dist", "index.js");
   const surveyPkg = join(projectRoot, "survey-mcp", "package.json");
   const store = new SkillStore({ projectRoot, disableBuiltins: true });
   const byName = new Map(store.list().map((skill) => [skill.name, skill]));
@@ -103,13 +120,9 @@ export function runRailwiseReadinessChecks(projectRoot: string): DoctorCheck[] {
     check(
       "railwise-survey-mcp",
       "survey mcp   ",
-      survey?.command === "node" &&
-        surveyArgs.includes("./survey-mcp/dist/index.js") &&
-        existsSync(surveyDist)
-        ? "ok"
-        : "fail",
-      existsSync(surveyPkg) && existsSync(surveyDist)
-        ? `.mcp.json → node ./survey-mcp/dist/index.js (${surveyDist})`
+      survey?.command === "node" && surveyEntry !== null && existsSync(surveyDist) ? "ok" : "fail",
+      (existsSync(surveyPkg) || surveyEntry !== null) && existsSync(surveyDist)
+        ? `.mcp.json → node ${surveyEntry?.entry ?? "./survey-mcp/dist/index.js"} (${surveyDist})`
         : "survey-mcp package or built dist/index.js is missing; run `npm run build:survey`",
     ),
   );

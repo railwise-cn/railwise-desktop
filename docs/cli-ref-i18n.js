@@ -3,7 +3,7 @@
 (function () {
   "use strict";
 
-  var R = window.Reasonix;
+  var R = window.Railwise;
   if (!R) return;
 
   var en = {

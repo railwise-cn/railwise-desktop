@@ -590,7 +590,7 @@ Don't:
 
 Lead each turn with a one-line status: "▸ running \`npm test\` ..." → "▸ 2 failures in tests/foo.test.ts — first is …" → so the user always knows where you are without scrolling tool output.`;
 
-const BUILTIN_QQ_BODY = `Help the user configure or troubleshoot the built-in QQ channel in Reasonix. This skill is INLINED on purpose — stay in the parent loop and keep the guidance short.
+const BUILTIN_QQ_BODY = `Help the user configure or troubleshoot the built-in QQ channel in Railwise. This skill is INLINED on purpose — stay in the parent loop and keep the guidance short.
 
 What this skill is for:
 - QQ first-time setup
@@ -625,9 +625,9 @@ Do not:
 
 Docs are the fallback, not the main path:
 - QQ Bot apply page: https://q.qq.com/qqbot/openclaw/login.html
-- Official config guide (zh): https://esengine.github.io/DeepSeek-Reasonix/configuration.html?lang=zh
-- QQ guide (zh): https://github.com/esengine/DeepSeek-Reasonix/blob/main/docs/qq-connect.zh-CN.md
-- Non-official fallback mirror for the QQ guide: https://cdn.jsdelivr.net/gh/esengine/DeepSeek-Reasonix@main/docs/qq-connect.zh-CN.md
+- Official config guide (zh): https://esengine.github.io/Railwise/configuration.html?lang=zh
+- QQ guide (zh): https://github.com/esengine/Railwise/blob/main/docs/qq-connect.zh-CN.md
+- Non-official fallback mirror for the QQ guide: https://cdn.jsdelivr.net/gh/esengine/Railwise@main/docs/qq-connect.zh-CN.md
 
 Use this skill when the user needs help getting QQ working.`;
 

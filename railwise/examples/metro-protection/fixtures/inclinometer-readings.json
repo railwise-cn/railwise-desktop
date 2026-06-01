@@ -1,0 +1,33 @@
+{
+  "alertThresholdMm": 18,
+  "readings": [
+    {
+      "depth": 3,
+      "initialX": 0,
+      "currentX": 2.1,
+      "initialY": 0,
+      "currentY": 1.4
+    },
+    {
+      "depth": 6,
+      "initialX": 0,
+      "currentX": 4.6,
+      "initialY": 0,
+      "currentY": 2.9
+    },
+    {
+      "depth": 12,
+      "initialX": 0,
+      "currentX": 11.8,
+      "initialY": 0,
+      "currentY": 6.4
+    },
+    {
+      "depth": 18,
+      "initialX": 0,
+      "currentX": 18.2,
+      "initialY": 0,
+      "currentY": 7.8
+    }
+  ]
+}
