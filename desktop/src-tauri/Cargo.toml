@@ -1,6 +1,6 @@
 [package]
 name = "reasonix-desktop"
-version = "0.52.2"
+version = "0.52.5"
 edition = "2021"
 publish = false
 
@@ -22,6 +22,9 @@ anyhow = "1"
 which = "7"
 dirs = "6"
 rusqlite = { version = "0.32", features = ["bundled"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "0.3.2", features = ["NSWindow"] }
 
 [features]
 custom-protocol = ["tauri/custom-protocol"]

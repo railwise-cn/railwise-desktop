@@ -67,9 +67,9 @@ import { useElapsed } from "./ui/live";
 import { RailwiseProjectWizard } from "./ui/railwise-project-wizard";
 import { SettingsModal, type PageId as SettingsPageId } from "./ui/settings";
 import { Sidebar } from "./ui/sidebar";
-// 懒加载：测绘工作台体积较大（含 echarts），仅在打开时按需加载，避免拖累主包。
-const SurveyWorkbench = lazy(() =>
-  import("./ui/survey-workbench").then((m) => ({ default: m.SurveyWorkbench })),
+// 懒加载：工程分析工作台仅在打开时按需加载，避免拖累主包。
+const EngineeringWorkbench = lazy(() =>
+  import("./ui/engineering-workbench").then((m) => ({ default: m.EngineeringWorkbench })),
 );
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
@@ -252,8 +252,9 @@ export function toggleWindowExpanded(
   win: WindowControls,
   isMac: boolean,
   expanded: boolean,
+  nativeFullscreen?: () => Promise<void>,
 ): Promise<void> {
-  if (isMac) return win.setFullscreen(!expanded);
+  if (isMac) return nativeFullscreen ? nativeFullscreen() : win.setFullscreen(!expanded);
   return win.toggleMaximize();
 }
 
@@ -1489,7 +1490,7 @@ function TabRuntime({
   const [mcpEditTarget, setMcpEditTarget] = useState<{ raw: string; nonce: number } | null>(null);
   const [jobsOpen, setJobsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [surveyOpen, setSurveyOpen] = useState(false);
+  const [engineeringWorkbenchOpen, setEngineeringWorkbenchOpen] = useState(false);
   const [railwiseProjectOpen, setRailwiseProjectOpen] = useState(false);
   const [railwiseProjectError, setRailwiseProjectError] = useState<string | null>(null);
   const [contextPanelTab, setContextPanelTab] = useState<ContextPanelTab>("files");
@@ -2540,7 +2541,7 @@ function TabRuntime({
           onOpenRules={() => openSettingsAt("rules")}
           onOpenCommands={() => palette.setOpen(true)}
           onOpenAbout={() => setAboutOpen(true)}
-          onOpenSurvey={() => setSurveyOpen(true)}
+          onOpenEngineeringWorkbench={() => setEngineeringWorkbenchOpen(true)}
           onOpenRailwiseProject={() => setRailwiseProjectOpen(true)}
         />
 
@@ -2874,9 +2875,9 @@ function TabRuntime({
 
         {aboutOpen ? <AboutModal onClose={() => setAboutOpen(false)} /> : null}
 
-        {surveyOpen ? (
+        {engineeringWorkbenchOpen ? (
           <Suspense fallback={null}>
-            <SurveyWorkbench onClose={() => setSurveyOpen(false)} />
+            <EngineeringWorkbench onClose={() => setEngineeringWorkbenchOpen(false)} />
           </Suspense>
         ) : null}
 
@@ -3141,7 +3142,13 @@ function TitleBar({
               aria-label={isMaximized ? t("app.titlebar.restore") : t("app.titlebar.maximize")}
               onMouseDown={(e) => {
                 e.stopPropagation();
-                void toggleWindowExpanded(win, true, isMaximized);
+                void toggleWindowExpanded(win, true, isMaximized, async () => {
+                  try {
+                    await invoke("toggle_macos_native_fullscreen");
+                  } catch {
+                    await win.setFullscreen(!isMaximized);
+                  }
+                });
               }}
             >
               {isMaximized ? <WinRestore /> : <WinMaximize />}

@@ -359,6 +359,34 @@ fn purge_old_pasted_images(max_age: Duration) {
     }
 }
 
+#[tauri::command]
+#[cfg(target_os = "macos")]
+fn toggle_macos_native_fullscreen(window: tauri::WebviewWindow) -> Result<(), String> {
+    use objc2_app_kit::{NSWindow, NSWindowCollectionBehavior};
+
+    let ns_window = window.ns_window().map_err(|e| e.to_string())?;
+    if ns_window.is_null() {
+        return Err("macOS NSWindow handle is null".to_string());
+    }
+
+    unsafe {
+        let ns_window: &NSWindow = &*ns_window.cast::<NSWindow>();
+        let behavior = ns_window.collectionBehavior();
+        ns_window.setCollectionBehavior(behavior | NSWindowCollectionBehavior::FullScreenPrimary);
+        ns_window.toggleFullScreen(None);
+    }
+    Ok(())
+}
+
+#[tauri::command]
+#[cfg(not(target_os = "macos"))]
+fn toggle_macos_native_fullscreen(window: tauri::WebviewWindow) -> Result<(), String> {
+    let fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
+    window
+        .set_fullscreen(!fullscreen)
+        .map_err(|e| e.to_string())
+}
+
 fn main() {
     #[cfg(target_os = "linux")]
     linux_webkit_compat();
@@ -391,7 +419,8 @@ fn main() {
             list_workspace_tree,
             git_status,
             write_text_file,
-            save_clipboard_image
+            save_clipboard_image,
+            toggle_macos_native_fullscreen
         ])
         .setup(|app| {
             std::thread::spawn(|| purge_old_pasted_images(Duration::from_secs(24 * 60 * 60)));

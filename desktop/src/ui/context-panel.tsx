@@ -12,7 +12,7 @@ import type {
   RailwiseReadinessItem,
 } from "../protocol";
 import { PanelErrorBoundary } from "./error-boundary";
-import { McpServerCard } from "./mcp-server-card";
+import { McpServerCard, mcpCallableToolCount, mcpHasCallableTools } from "./mcp-server-card";
 import { RailwiseReadinessPanel } from "./railwise-readiness";
 
 export type ContextPanelTab = "files" | "tools" | "memory" | "rules" | "railwise";
@@ -306,13 +306,14 @@ function CtxTools({
   onRetry?: (raw: string) => void;
 }) {
   const [filter, setFilter] = useState<McpFilter>("all");
-  const readyCount = specs.filter((s) => s.status === "connected").length;
+  const readyCount = specs.filter(mcpHasCallableTools).length;
   const failed = specs.filter((s) => s.status === "failed");
   const failedCount = failed.length;
-  const toolCount = specs.reduce((sum, s) => sum + (s.toolCount ?? s.tools?.length ?? 0), 0);
+  const callableCount = specs.reduce((sum, s) => sum + mcpCallableToolCount(s), 0);
+  const allCallable = specs.length > 0 && specs.every(mcpHasCallableTools);
   const filtered =
     filter === "ready"
-      ? specs.filter((s) => s.status === "connected")
+      ? specs.filter(mcpHasCallableTools)
       : filter === "failed"
         ? failed
         : [...failed, ...specs.filter((s) => s.status !== "failed")];
@@ -327,7 +328,7 @@ function CtxTools({
         <span className="right">
           {specs.length === 0
             ? "—"
-            : bridged
+            : bridged && allCallable
               ? t("contextPanel.mcpReadyAll", { count: specs.length })
               : t("contextPanel.mcpReadySome", { ready: readyCount, count: specs.length })}
         </span>
@@ -342,7 +343,7 @@ function CtxTools({
             <span data-kind={failedCount > 0 ? "failed" : "muted"}>
               {t("contextPanel.mcpHealthFailed", { count: failedCount })}
             </span>
-            <span>{t("contextPanel.mcpHealthTools", { count: toolCount })}</span>
+            <span>{t("contextPanel.mcpHealthTools", { count: callableCount })}</span>
           </div>
           <div className="mcp-filter-row">
             {(["all", "ready", "failed"] as const).map((kind) => (

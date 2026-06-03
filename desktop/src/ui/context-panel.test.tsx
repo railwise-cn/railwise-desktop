@@ -133,4 +133,40 @@ describe("ContextPanel files", () => {
 
     expect(screen.getByText("Tools").getAttribute("data-active")).toBe("true");
   });
+
+  it("marks connected MCP servers with zero tools as unavailable for calls", () => {
+    render(
+      <ContextPanel
+        settings={settings}
+        usage={usage}
+        mcpSpecs={[
+          {
+            raw: "empty=node empty.js",
+            name: "empty",
+            transport: "stdio",
+            summary: "stdio · node empty.js",
+            status: "connected",
+            toolCount: 0,
+            tools: [],
+          },
+        ]}
+        mcpBridged={false}
+        sessionFiles={[]}
+        memory={[]}
+        memoryDetail={null}
+        railwiseReadiness={[]}
+        activeTab="tools"
+        activeTabNonce={1}
+        onReadMemory={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("0/1 ready")).toBeTruthy();
+    expect(screen.getByText("callable tools 0")).toBeTruthy();
+    expect(screen.getByText("connected, no callable tools")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tools" }));
+
+    expect(screen.getByText("Connected, but this server did not expose callable tools")).toBeTruthy();
+  });
 });

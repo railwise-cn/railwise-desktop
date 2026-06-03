@@ -228,16 +228,18 @@ describe("Desktop App window controls", () => {
     expect(win.isMaximized).not.toHaveBeenCalled();
   });
 
-  it("uses native fullscreen for macOS zoom button", async () => {
+  it("prefers the macOS native fullscreen bridge for the macOS zoom button", async () => {
     const win = {
       isFullscreen: vi.fn(async () => false),
       isMaximized: vi.fn(async () => false),
       setFullscreen: vi.fn(async () => {}),
       toggleMaximize: vi.fn(async () => {}),
     };
+    const nativeFullscreen = vi.fn(async () => {});
 
-    await toggleWindowExpanded(win, true, false);
-    expect(win.setFullscreen).toHaveBeenCalledWith(true);
+    await toggleWindowExpanded(win, true, false, nativeFullscreen);
+    expect(nativeFullscreen).toHaveBeenCalledTimes(1);
+    expect(win.setFullscreen).not.toHaveBeenCalled();
     expect(win.toggleMaximize).not.toHaveBeenCalled();
   });
 

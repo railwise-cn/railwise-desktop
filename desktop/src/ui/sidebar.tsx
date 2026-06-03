@@ -65,7 +65,7 @@ export function Sidebar({
   onOpenRules,
   onOpenCommands,
   onOpenAbout,
-  onOpenSurvey,
+  onOpenEngineeringWorkbench,
   onOpenRailwiseProject,
 }: {
   sessions: SessionInfo[];
@@ -84,7 +84,7 @@ export function Sidebar({
   onOpenRules: () => void;
   onOpenCommands: () => void;
   onOpenAbout: () => void;
-  onOpenSurvey: () => void;
+  onOpenEngineeringWorkbench: () => void;
   onOpenRailwiseProject: () => void;
 }) {
   useLang();
@@ -349,11 +349,11 @@ export function Sidebar({
       </div>
 
       <div className="side-foot">
-        <div className="row" onClick={onOpenSurvey}>
+        <div className="row" onClick={onOpenEngineeringWorkbench}>
           <span className="ico">
             <I.chart size={13} />
           </span>
-          <span>测绘工作台</span>
+          <span>{t("sidebarPanel.engineeringWorkbench")}</span>
         </div>
         <div className="row" onClick={onOpenRules}>
           <span className="ico">

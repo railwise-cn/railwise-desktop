@@ -6,10 +6,21 @@ import { Tooltip } from "./tooltip";
 
 export type McpServerCardMode = "settings" | "context";
 
+export function mcpCallableToolCount(spec: McpSpecInfo): number {
+  const listedTools = spec.tools?.length ?? 0;
+  if (listedTools > 0) return listedTools;
+  return spec.toolCount ?? 0;
+}
+
+export function mcpHasCallableTools(spec: McpSpecInfo): boolean {
+  return spec.status === "connected" && mcpCallableToolCount(spec) > 0;
+}
+
 export function mcpStatusLabel(spec: McpSpecInfo): string {
   if (spec.status === "failed") return mcpFailureLabel(spec);
   switch (spec.status) {
     case "connected":
+      if (!mcpHasCallableTools(spec)) return t("mcpCard.connectedNoTools");
       return t("settings.mcpStatus.connected");
     case "handshake":
       return t("settings.mcpStatus.handshake");
@@ -60,7 +71,9 @@ export function McpServerCard({
   const canExpandTools = hasTools || spec.status === "connected";
   const displayName = spec.name ?? "(anonymous)";
   const status = mcpStatusLabel(spec);
-  const toolCount = typeof spec.toolCount === "number" ? spec.toolCount : tools.length;
+  const toolCount = mcpCallableToolCount(spec);
+  const dataStatus =
+    spec.status === "connected" && !mcpHasCallableTools(spec) ? "empty-tools" : spec.status;
   const statusText = `${status}${toolCount ? ` · ${t("contextPanel.mcpTools", { count: toolCount })}` : ""}`;
   const statusTooltip =
     spec.status === "failed" && spec.statusReason
@@ -68,7 +81,11 @@ export function McpServerCard({
       : statusText;
 
   return (
-    <div className="scard mcp-server-card" data-mode={mode} data-status={spec.status}>
+    <div
+      className="scard mcp-server-card"
+      data-mode={mode}
+      data-status={dataStatus}
+    >
       <div className="top">
         <span className="ico">
           <I.wrench size={14} />
@@ -79,7 +96,10 @@ export function McpServerCard({
             {spec.summary}
           </div>
           <Tooltip content={statusTooltip} className="mcp-status-tooltip">
-            <span className="mcp-spec-status" data-status={spec.status}>
+            <span
+              className="mcp-spec-status"
+              data-status={dataStatus}
+            >
               {statusText}
             </span>
           </Tooltip>

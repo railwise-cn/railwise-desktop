@@ -1296,7 +1296,11 @@ function emitMcpSpecs(tab: Tab): void {
       toolCount: tools.length > 0 ? tools.length : live.toolCount,
     };
   });
-  const bridged = specs.length > 0 && specs.every((s) => s.status === "connected");
+  const bridged =
+    specs.length > 0 &&
+    specs.every(
+      (s) => s.status === "connected" && ((s.tools?.length ?? 0) > 0 || (s.toolCount ?? 0) > 0),
+    );
   emit({ type: "$mcp_specs", specs, bridged }, tab.id);
 }
 

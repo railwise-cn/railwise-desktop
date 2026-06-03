@@ -1,6 +1,6 @@
 {
   "name": "railwise",
-  "version": "0.52.2",
+  "version": "0.52.5",
   "description": "DeepSeek-native coding agent: cache-first loop, flash-first cost control, tool-call repair.",
   "type": "module",
   "bin": {
