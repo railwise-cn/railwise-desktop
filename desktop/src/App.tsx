@@ -2490,6 +2490,7 @@ function TabRuntime({
     void navigator.clipboard.writeText(md);
     flashToast(t("app.toast.copiedMd"));
   }, [state.messages, flashToast]);
+  const isSingleTab = tabsList.length <= 1;
 
   return (
     <WorkspaceProvider
@@ -2503,6 +2504,7 @@ function TabRuntime({
         className="app"
         data-theme={theme}
         data-theme-style={themeStyle}
+        data-single-tab={isSingleTab}
         data-side-collapsed={sideCollapsed}
         data-ctx-collapsed={ctxCollapsed}
         style={{
@@ -2527,19 +2529,21 @@ function TabRuntime({
           hasMessages={state.messages.length > 0}
         />
 
-        <TabBar
-          tabs={tabsList}
-          activeId={activeTabId}
-          setActive={setActiveTabId}
-          onClose={(id) => {
-            if (tabsList.length <= 1) return;
-            invoke("rpc_send", {
-              line: JSON.stringify({ cmd: "tab_close", tabId: id }),
-            }).catch((err) => console.error("tab_close failed", err));
-          }}
-          onNew={onNewTab}
-          singleTab={tabsList.length <= 1}
-        />
+        {isSingleTab ? null : (
+          <TabBar
+            tabs={tabsList}
+            activeId={activeTabId}
+            setActive={setActiveTabId}
+            onClose={(id) => {
+              if (tabsList.length <= 1) return;
+              invoke("rpc_send", {
+                line: JSON.stringify({ cmd: "tab_close", tabId: id }),
+              }).catch((err) => console.error("tab_close failed", err));
+            }}
+            onNew={onNewTab}
+            singleTab={isSingleTab}
+          />
+        )}
 
         <Sidebar
           sessions={state.sessions}
@@ -3091,11 +3095,13 @@ function TitleBar({
   const [isMaximized, setIsMaximized] = useState(false);
   const moreWrapRef = useRef<HTMLDivElement>(null);
   const isMac = document.documentElement.dataset.platform === "macos";
-  const showCustomMacControls = isMac && !isTauriDesktopRuntime();
-  const showCustomWindowsControls = !isMac && !isTauriDesktopRuntime();
+  const isDesktopRuntime = isTauriDesktopRuntime();
+  const showTitlebarIdentity = !isDesktopRuntime;
+  const showCustomMacControls = isMac && !isDesktopRuntime;
+  const showCustomWindowsControls = !isMac && !isDesktopRuntime;
 
   useEffect(() => {
-    if (!isTauriDesktopRuntime()) return;
+    if (!isDesktopRuntime) return;
     const win = getTitlebarWindowControls();
     const syncWindowState = async () => {
       setIsMaximized(await readWindowExpanded(win, isMac));
@@ -3121,7 +3127,7 @@ function TitleBar({
       unlisten?.();
       fullscreenUnlisten?.();
     };
-  }, [isMac]);
+  }, [isDesktopRuntime, isMac]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -3194,18 +3200,20 @@ function TitleBar({
         >
           <I.panel_l size={14} />
         </button>
-        <div className="tb-meta" data-tauri-drag-region>
-          <div className="brand" data-tauri-drag-region>
-            <span className="mark" />
-            <span className="brand-name">Railwise</span>
-          </div>
-          {session && (
-            <div className="crumbs" data-tauri-drag-region>
-              <span className="sep">/</span>
-              <span className="cur">{model ?? "—"}</span>
+        {showTitlebarIdentity ? (
+          <div className="tb-meta" data-tauri-drag-region>
+            <div className="brand" data-tauri-drag-region>
+              <span className="mark" />
+              <span className="brand-name">Railwise</span>
             </div>
-          )}
-        </div>
+            {session && (
+              <div className="crumbs" data-tauri-drag-region>
+                <span className="sep">/</span>
+                <span className="cur">{model ?? "—"}</span>
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
       {/* center: drag region */}

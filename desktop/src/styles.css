@@ -453,6 +453,13 @@ html[data-platform="macos"] .app {
   --thread-max-width: 960px;
   --composer-max-width: 880px;
 }
+.app[data-single-tab="true"] {
+  grid-template-rows: 36px 1fr 26px;
+  grid-template-areas:
+    "title  title   title"
+    "side   main    ctx"
+    "status status  status";
+}
 .app[data-ctx-collapsed="true"][data-side-collapsed="true"] {
   --thread-max-width: 1120px;
   --composer-max-width: 1040px;
