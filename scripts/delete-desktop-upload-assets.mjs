@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 
-const {
-  GITHUB_REPOSITORY: repository,
-  GITHUB_TOKEN: token,
-  RELEASE_TAG: tag,
-} = process.env;
+const { GITHUB_REPOSITORY: repository, GITHUB_TOKEN: token, RELEASE_TAG: tag } = process.env;
 
 const dryRun = process.argv.includes("--dry-run") || process.env.DRY_RUN === "1";
 
@@ -21,7 +17,8 @@ if (!token && !dryRun) {
 }
 
 const version = tag.replace(/^desktop-v/, "");
-const releaseApi = `https://api.github.com/repos/${repository}/releases/tags/${tag}`;
+const releasesApi = `https://api.github.com/repos/${repository}/releases`;
+const releaseByTagApi = `${releasesApi}/tags/${tag}`;
 
 const headers = {
   Accept: "application/vnd.github+json",
@@ -33,11 +30,12 @@ if (token) {
 }
 
 async function githubJson(url, init = {}) {
+  const { allowMissing, ...fetchInit } = init;
   const response = await fetch(url, {
-    ...init,
+    ...fetchInit,
     headers: {
       ...headers,
-      ...init.headers,
+      ...fetchInit.headers,
     },
   });
 
@@ -57,6 +55,31 @@ async function githubJson(url, init = {}) {
   return response.json();
 }
 
+async function findReleaseByTag() {
+  const releaseByTag = await githubJson(releaseByTagApi, { allowMissing: true });
+
+  if (releaseByTag) {
+    return releaseByTag;
+  }
+
+  for (let page = 1; page <= 5; page += 1) {
+    const releases = await githubJson(`${releasesApi}?per_page=100&page=${page}`);
+    const release = releases.find((candidate) => {
+      return candidate.tag_name === tag || candidate.name?.includes(tag);
+    });
+
+    if (release) {
+      return release;
+    }
+
+    if (releases.length < 100) {
+      break;
+    }
+  }
+
+  return null;
+}
+
 function isPrimaryDownload(name) {
   return [
     `Railwise-Windows-64bit-Setup-${version}.exe`,
@@ -65,7 +88,7 @@ function isPrimaryDownload(name) {
   ].includes(name);
 }
 
-const release = await githubJson(releaseApi, { allowMissing: true });
+const release = await findReleaseByTag();
 
 if (!release) {
   console.log(`release ${tag} does not exist yet; nothing to delete`);
