@@ -9704,6 +9704,134 @@ html[data-platform="macos"] .splash {
   line-height: 1.45;
 }
 
+.agent-flow-panel {
+  border: 1px solid rgba(117, 156, 255, 0.24);
+  border-radius: 8px;
+  background: color-mix(in oklch, var(--panel-2, #1f1f1f) 88%, rgba(117, 156, 255, 0.12));
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.agent-flow-head,
+.agent-flow-card,
+.agent-flow-card-head {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-flow-head {
+  justify-content: space-between;
+}
+
+.agent-flow-head span,
+.agent-flow-count {
+  color: var(--muted-2, #7f858d);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.agent-flow-head strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--text, #eee);
+  font-size: 12px;
+}
+
+.agent-flow-count {
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 999px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+.agent-flow-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+.agent-flow-card {
+  align-items: flex-start;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 8px;
+}
+
+.agent-flow-card[data-tone="tool"] {
+  border-color: rgba(117, 156, 255, 0.28);
+}
+
+.agent-flow-card[data-tone="human"] {
+  border-color: rgba(240, 179, 90, 0.34);
+  background: rgba(240, 179, 90, 0.05);
+}
+
+.agent-flow-card[data-tone="ok"] {
+  border-color: rgba(123, 216, 143, 0.3);
+}
+
+.agent-flow-card[data-tone="warn"] {
+  border-color: rgba(240, 179, 90, 0.32);
+}
+
+.agent-flow-card[data-tone="error"] {
+  border-color: rgba(255, 107, 107, 0.34);
+}
+
+.agent-flow-icon {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 8px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--accent, #f26b4f);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.agent-flow-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.agent-flow-card-head {
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.agent-flow-card-head strong {
+  color: var(--text, #eee);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.agent-flow-card-head span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted, #9aa0a6);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-flow-body pre {
+  max-height: 92px;
+  overflow: auto;
+  margin: 7px 0 0;
+  color: var(--muted, #9aa0a6);
+  font-family: "Geist Mono", monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .ewb-scenario-note {
   display: flex;
   align-items: center;

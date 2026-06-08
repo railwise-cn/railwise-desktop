@@ -1,5 +1,7 @@
 import { type MouseEvent as ReactMouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { I } from "../icons";
+import { buildWorkbenchAgentFlowEvents } from "../railwise-agent-events";
+import { AgentExecutionFlowPanel } from "./agent-execution-flow";
 
 type Primitive = string | number | boolean | null;
 
@@ -72029,6 +72031,38 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
         : null,
     [engineCommandPlans.length, enginePreflightPreview, engineReviewHistory],
   );
+  const agentFlowEvents = useMemo(() => {
+    const readyEngineCount = enginePreflightPreview?.rows.filter((row) => row.available).length ?? null;
+    return buildWorkbenchAgentFlowEvents({
+      toolId: activeId,
+      toolTitle: activeTool.title,
+      inputFormat,
+      sourceName: importSummary?.sourceName ?? importSummary?.sourcePath ?? null,
+      rowCount: importSummary?.rowCount ?? result.rows.length,
+      resultStatus: result.status,
+      resultSummary: result.summary,
+      resultRows: result.rows.length,
+      warnings: importWarnings,
+      inputError,
+      engineAcceptanceStatus: engineAcceptanceStatusLabel,
+      engineReadyCount: readyEngineCount,
+      engineTotalCount: enginePreflightPreview?.rows.length ?? null,
+    });
+  }, [
+    activeId,
+    activeTool.title,
+    engineAcceptanceStatusLabel,
+    enginePreflightPreview,
+    importSummary?.rowCount,
+    importSummary?.sourceName,
+    importSummary?.sourcePath,
+    importWarnings,
+    inputError,
+    inputFormat,
+    result.rows.length,
+    result.status,
+    result.summary,
+  ]);
   const indoorAdjustmentParsedInput = useMemo(() => {
     if (activeId !== "traverse_adjustment" && activeId !== "level_adjustment") return null;
     try {
@@ -84938,6 +84972,8 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
                 </div>
               </div>
               {exportNotice ? <div className="ewb-export-notice">{exportNotice}</div> : null}
+
+              <AgentExecutionFlowPanel events={agentFlowEvents} />
 
               <section
                 className="ewb-spatial-artifact-status"

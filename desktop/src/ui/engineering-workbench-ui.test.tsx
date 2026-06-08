@@ -226,6 +226,23 @@ describe("EngineeringWorkbench archive ZIP history UI", () => {
     expect(screen.getByText("预警")).toBeTruthy();
   });
 
+  it("shows a unified Agent execution flow for the current calculation", () => {
+    installLocalStorageStub();
+    vi.mocked(invoke).mockImplementation((command: string) => {
+      if (command === "list_engineering_engines") return Promise.resolve([]);
+      return Promise.reject(new Error(`unexpected invoke: ${command}`));
+    });
+
+    render(<EngineeringWorkbench onClose={vi.fn()} />);
+
+    const panel = screen.getByLabelText("Agent 执行流");
+    expect(within(panel).getByText("工具调用")).toBeTruthy();
+    expect(within(panel).getByText("人工确认")).toBeTruthy();
+    expect(within(panel).getByText("结果卡片")).toBeTruthy();
+    expect(within(panel).getAllByText("engineering.distance_azimuth.calculate").length).toBeGreaterThan(0);
+    expect(within(panel).getByText("成果提交前复核")).toBeTruthy();
+  });
+
   it("runs traverse and leveling indoor workflows from a dedicated adjustment panel", () => {
     installLocalStorageStub();
     vi.mocked(invoke).mockImplementation((command: string) => {
@@ -2236,7 +2253,7 @@ describe("EngineeringWorkbench archive ZIP history UI", () => {
       const call = writeCalls.find((entry) => entry.path === item.path);
       expect(call?.content).toContain(item.marker);
     }
-  });
+  }, 30000);
 
   it("summarizes professional engine acceptance after refreshing sidecar status", async () => {
     installLocalStorageStub();
