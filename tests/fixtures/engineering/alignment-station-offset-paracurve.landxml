@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<LandXML>
+  <Alignments>
+    <Alignment name="ParaMain" staStart="1000">
+      <CoordGeom>
+        <Line>
+          <Start>0 0</Start>
+          <End>100 0</End>
+        </Line>
+      </CoordGeom>
+      <Profile>
+        <ProfAlign name="FinishedGrade">
+          <PVI>1000 10.000</PVI>
+          <ParaCurve length="100">1050 10.000</ParaCurve>
+          <PVI>1100 15.000</PVI>
+        </ProfAlign>
+      </Profile>
+    </Alignment>
+  </Alignments>
+  <CgPoints>
+    <CgPoint name="PC40" code="observation" desc="designOffsetM=0;toleranceMm=100;verticalToleranceMm=20">40 0 10.85</CgPoint>
+  </CgPoints>
+</LandXML>

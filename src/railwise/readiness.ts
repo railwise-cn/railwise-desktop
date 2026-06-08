@@ -27,7 +27,33 @@ const REQUIRED_REASONIX_SKILLS = [
   "spellcheck",
 ] as const;
 
+const REQUIRED_CLAUDE_SKILLS = [
+  "bidding-knowledge",
+  "monitoring-design",
+  "report-writing",
+  "standard-reference",
+  "data-analysis",
+  "docx-generation",
+  "excel-operations",
+  "humanizer",
+  "canvas-design",
+  "frontend-design",
+  "bun-file-io",
+] as const;
+
 const REQUIRED_SURVEY_TOOLS = [
+  "survey_level_adjust",
+  "survey_traverse_adjust",
+  "survey_calculator_leveling_adjustment",
+  "survey_calculator_traverse_adjustment",
+  "survey_calculator_alert_level",
+  "survey_calculator_leveling_closure",
+  "survey_calculator_traverse_closure",
+  "survey_monitoring_csv",
+  "survey_format_parser",
+  "survey_chart_generator",
+  "survey_deformation_rate",
+  "survey_deformation_comparison",
   "survey_control_network",
   "survey_cpiii_adjustment",
   "survey_coord_transform",
@@ -37,9 +63,14 @@ const REQUIRED_SURVEY_TOOLS = [
   "survey_cross_section",
   "survey_axial_force",
   "survey_water_level",
-  "survey_pile_stakeout",
+  "survey_line_stakeout",
+  "survey_track_geometry_review",
+  "survey_alignment_station_offset",
   "survey_shield_guidance",
 ] as const;
+
+const REQUIRED_WRITER_TOOLS = ["survey_report_export", "survey_excel_export"] as const;
+const REQUIRED_STANDARD_QUERY_SKILLS = ["architect", "qa-reviewer"] as const;
 
 function check(
   id: string,
@@ -55,6 +86,14 @@ function reasonixSkillCount(projectRoot: string): number {
   if (!existsSync(dir)) return 0;
   return readdirSync(dir, { withFileTypes: true }).filter(
     (entry) => entry.isFile() && entry.name.endsWith(".md"),
+  ).length;
+}
+
+function claudeSkillCount(projectRoot: string): number {
+  const dir = join(projectRoot, ".claude", "skills");
+  if (!existsSync(dir)) return 0;
+  return readdirSync(dir, { withFileTypes: true }).filter(
+    (entry) => entry.isDirectory() && existsSync(join(dir, entry.name, "SKILL.md")),
   ).length;
 }
 
@@ -96,8 +135,14 @@ export function runRailwiseReadinessChecks(projectRoot: string): DoctorCheck[] {
   const store = new SkillStore({ projectRoot, disableBuiltins: true });
   const byName = new Map(store.list().map((skill) => [skill.name, skill]));
   const missingSkills = REQUIRED_REASONIX_SKILLS.filter((name) => !byName.has(name));
+  const missingClaudeSkills = REQUIRED_CLAUDE_SKILLS.filter((name) => !byName.has(name));
   const dataTools = new Set(byName.get("data-analyst")?.allowedTools ?? []);
   const missingTools = REQUIRED_SURVEY_TOOLS.filter((name) => !dataTools.has(name));
+  const writerTools = new Set(byName.get("writer")?.allowedTools ?? []);
+  const missingWriterTools = REQUIRED_WRITER_TOOLS.filter((name) => !writerTools.has(name));
+  const missingStandardQuerySkills = REQUIRED_STANDARD_QUERY_SKILLS.filter(
+    (name) => !(byName.get(name)?.allowedTools ?? []).includes("survey_standard_query"),
+  );
 
   let chiefText = "";
   try {
@@ -130,10 +175,20 @@ export function runRailwiseReadinessChecks(projectRoot: string): DoctorCheck[] {
     check(
       "railwise-skills",
       "skills       ",
-      missingSkills.length === 0 && missingTools.length === 0 ? "ok" : "fail",
-      missingSkills.length === 0 && missingTools.length === 0
-        ? `${reasonixSkillCount(projectRoot)} project skills · data-analyst can call ${REQUIRED_SURVEY_TOOLS.length} migrated survey tools`
-        : `missing skills: ${missingSkills.join(", ") || "none"}; missing data-analyst tools: ${missingTools.join(", ") || "none"}`,
+      missingSkills.length === 0 &&
+        missingClaudeSkills.length === 0 &&
+        missingTools.length === 0 &&
+        missingWriterTools.length === 0 &&
+        missingStandardQuerySkills.length === 0
+        ? "ok"
+        : "fail",
+      missingSkills.length === 0 &&
+        missingClaudeSkills.length === 0 &&
+        missingTools.length === 0 &&
+        missingWriterTools.length === 0 &&
+        missingStandardQuerySkills.length === 0
+        ? `${reasonixSkillCount(projectRoot)} reasonix skills · ${claudeSkillCount(projectRoot)} copied Claude skills · data-analyst can call ${REQUIRED_SURVEY_TOOLS.length} migrated survey tools · formal deliverables: Markdown/Word reports, Excel workbooks, SVG charts · review gates can query standards`
+        : `missing reasonix skills: ${missingSkills.join(", ") || "none"}; missing Claude skills: ${missingClaudeSkills.join(", ") || "none"}; missing data-analyst tools: ${missingTools.join(", ") || "none"}; missing writer tools: ${missingWriterTools.join(", ") || "none"}; missing standard-query gates: ${missingStandardQuerySkills.join(", ") || "none"}`,
     ),
   );
   out.push(

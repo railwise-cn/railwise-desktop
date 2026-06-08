@@ -87,6 +87,19 @@ function copyProjectFile(source: string, root: string, rel: string, created: str
   created.push(rel);
 }
 
+function recordProjectTreeFiles(root: string, relDir: string, created: string[]): void {
+  const absDir = join(root, relDir);
+  if (!existsSync(absDir)) return;
+  for (const entry of readdirSync(absDir, { withFileTypes: true })) {
+    const rel = join(relDir, entry.name);
+    if (entry.isDirectory()) {
+      recordProjectTreeFiles(root, rel, created);
+    } else if (entry.isFile()) {
+      created.push(rel);
+    }
+  }
+}
+
 export function initRailwiseProject(
   options: RailwiseProjectInitOptions,
 ): RailwiseProjectInitResult {
@@ -138,8 +151,14 @@ export function initRailwiseProject(
   cpSync(join(sourceRailwiseRoot, ".reasonix"), join(projectRoot, ".reasonix"), {
     recursive: true,
   });
-  for (const entry of readdirSync(join(projectRoot, ".reasonix", "skills"))) {
-    if (entry.endsWith(".md")) createdFiles.push(join(".reasonix", "skills", entry));
+  recordProjectTreeFiles(projectRoot, ".reasonix", createdFiles);
+
+  const claudeSkillsRoot = join(sourceRailwiseRoot, ".claude");
+  if (existsSync(claudeSkillsRoot)) {
+    cpSync(claudeSkillsRoot, join(projectRoot, ".claude"), {
+      recursive: true,
+    });
+    recordProjectTreeFiles(projectRoot, ".claude", createdFiles);
   }
 
   const sampleRoot = join(sourceRailwiseRoot, "examples", "metro-protection");

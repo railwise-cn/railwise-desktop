@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<LandXML>
+  <Alignments>
+    <Alignment name="CurveMain" staStart="1000">
+      <CoordGeom>
+        <Curve rot="ccw" radius="100" length="157.079633">
+          <Start>0 0</Start>
+          <Center>0 100</Center>
+          <End>100 100</End>
+        </Curve>
+      </CoordGeom>
+    </Alignment>
+  </Alignments>
+  <CgPoints>
+    <CgPoint name="C1" code="observation" desc="designOffsetM=0;toleranceMm=1000">70.710678 29.289322 0</CgPoint>
+  </CgPoints>
+</LandXML>

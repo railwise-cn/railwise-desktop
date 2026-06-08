@@ -9,9 +9,11 @@ This checkpoint records the bundled Railwise engineering workspace after the fir
 - Root `npm run build` builds `railwise/survey-mcp` before packaging desktop resources.
 - `scripts/postinstall.mjs` installs `railwise/survey-mcp` dependencies during checkout setup.
 - `.reasonix/skills/` contains the Railwise subagents and workflow skills needed for engineering use.
+- `.claude/skills/` contains the copied engineering skill library (`bidding-knowledge`, `monitoring-design`, reporting, Excel/Word, and related helpers).
 - `railwise/REASONIX.md` defines the Chief SOP: WBS planning, qa-inspector first-pass checks, and qa-reviewer final gate.
+- Readiness verifies the data analyst can call the migrated survey data parsing, charting, trend, and calculation tools, verifies the writer can call Word/Excel export tools, and verifies design/review gates can query standards before final deliverables.
 - Desktop now exposes a Railwise readiness page in the right Context Panel and a status-bar summary (`ok / warn / fail`).
-- Desktop can initialize a new Railwise project with `.mcp.json`, `REASONIX.md`, project skills, SOP, monitoring CSV, CPIII, shield guidance, and inclinometer fixtures.
+- Desktop can initialize a new Railwise project with `.mcp.json`, `REASONIX.md`, `.reasonix` project skills, copied `.claude` skills, SOP, monitoring CSV, CPIII, shield guidance, and inclinometer fixtures.
 
 ## Verification Gates
 

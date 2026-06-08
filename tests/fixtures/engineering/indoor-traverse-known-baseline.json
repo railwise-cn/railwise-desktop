@@ -1,0 +1,41 @@
+{
+  "schema": "railwise.engineering.indoorAdjustmentBenchmark.v1",
+  "title": "PRD known traverse adjustment benchmark",
+  "tool": "survey_traverse_adjust",
+  "source": "Analytical two-leg traverse baseline derived from the PRD least-squares traverse contract.",
+  "input": {
+    "known_points": [
+      { "name": "S", "x": 0, "y": 0, "fixed": true },
+      { "name": "E", "x": 100, "y": 100, "fixed": true }
+    ],
+    "observations": [
+      { "from": "S", "to": "P1", "hz_angle_deg": 270, "slope_dist_m": 100 },
+      { "from": "P1", "to": "E", "hz_angle_deg": 90, "slope_dist_m": 100 }
+    ],
+    "params": {
+      "start_azimuth_deg": 0,
+      "end_azimuth_deg": 0,
+      "dir_mse_sec": 2,
+      "dist_fixed_mm": 1,
+      "ppm": 1,
+      "refraction": 0.14,
+      "ellipsoid_r": 6371000,
+      "height_projection": true,
+      "model": "normal"
+    }
+  },
+  "expected": {
+    "method": "least_squares_traverse_adjustment",
+    "observation_count": 2,
+    "total_distance_m": 200,
+    "coordinate_closure_mm": 0,
+    "adjusted_points": {
+      "P1": { "x": 100, "y": 0, "point_mse_mm": 0 },
+      "E": { "x": 100, "y": 100, "point_mse_mm": 2.2 }
+    },
+    "error_ellipses": {
+      "P1": { "semi_major_mm": 0, "semi_minor_mm": 0 },
+      "E": { "semi_major_mm": 1.7, "semi_minor_mm": 1.396 }
+    }
+  }
+}

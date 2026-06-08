@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<LandXML>
+  <Alignments>
+    <Alignment name="Main" staStart="1000">
+      <CoordGeom>
+        <Line>
+          <Start>0 0</Start>
+          <End>100 0</End>
+        </Line>
+      </CoordGeom>
+    </Alignment>
+  </Alignments>
+  <CgPoints>
+    <CgPoint name="L1" code="observation" desc="designOffsetM=0;toleranceMm=6000">40 5 0</CgPoint>
+  </CgPoints>
+</LandXML>

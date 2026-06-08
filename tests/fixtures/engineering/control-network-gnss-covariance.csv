@@ -1,0 +1,6 @@
+role,id,x,y,z,observationType,from,to,dx,dy,dz,sigmaMm,covXXM2,covXYM2,covXZM2,covYYM2,covYZM2,covZZM2
+known,A,0,0,0,,,,,,,,,,,,,
+known,B,100,0,5,,,,,,,,,,,,,
+unknown,P,49.8,40.2,3.7,,,,,,,,,,,,,
+observation,BL1,,,,gnss_baseline,A,P,50.004,39.996,4,,0.000004,0.000003,0,0.000009,0,0.000004
+observation,BL2,,,,gnss_baseline,B,P,-50,40.002,-1,1,,,,,,

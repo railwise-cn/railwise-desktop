@@ -40,6 +40,17 @@ const USER_FACING_BRAND_FILES = [
 
 const USER_FACING_BRAND_PATHS = [...filesUnder("docs/brand", /\.(ico|png|svg)$/)];
 
+const RAILWISE_ENGINEERING_SCOPE_FILES = [
+  "迁移方案-RAILWISE改装移植.md",
+  "railwise/REASONIX.md",
+  "railwise/survey-mcp/package.json",
+  "railwise/examples/metro-protection/README.md",
+  ...filesUnder("railwise/.reasonix/skills", /\.md$/),
+  ...filesUnder("railwise/.claude/skills", /SKILL\.md$/),
+];
+
+const ENGINEERING_ROADMAP_FILE = "docs/engineering-analysis-workbench-research.md";
+
 const LEGACY_BRAND_PATTERN =
   /\bDeepSeek-Reasonix\b|\bDeepSeek Reasonix\b|\bReasonix\b|\breasonix\b/;
 
@@ -84,6 +95,55 @@ describe("Railwise user-facing branding", () => {
     const offenders = USER_FACING_BRAND_PATHS.filter((file) => /reasonix/i.test(file));
 
     expect(offenders).toEqual([]);
+  });
+
+  it("uses engineering survey wording in Chinese desktop identity copy", () => {
+    const zhDesktop = readFileSync("desktop/src/i18n/zh-CN.ts", "utf8");
+
+    expect(zhDesktop).toContain("工程测量 · 监测分析智能体");
+    expect(zhDesktop).toContain("工程测量智能体");
+    expect(zhDesktop).not.toContain(`工程${"测"}${"绘"}`);
+  });
+
+  it("keeps the bundled Railwise workspace focused on rail, traffic, railway, survey, and monitoring work", () => {
+    const bannedTerms = [
+      `${"测"}${"绘"}`,
+      `${"岩"}${"土"}`,
+      `${"基"}${"坑"}`,
+      `${"土"}${"方"}`,
+      `${"开"}${"挖"}`,
+      `${"方"}${"量"}`,
+      `${"桩"}位放样`,
+      `pile_${"stakeout"}`,
+      `survey_pile_${"stakeout"}`,
+    ];
+    const offenders = RAILWISE_ENGINEERING_SCOPE_FILES.flatMap((file) => {
+      const text = readFileSync(file, "utf8");
+      return text
+        .split(/\r?\n/)
+        .map((line, index) => ({ file, line, index: index + 1 }))
+        .filter(({ line }) => bannedTerms.some((term) => line.includes(term)));
+    });
+
+    expect(offenders.map((item) => `${item.file}:${item.index}: ${item.line.trim()}`)).toEqual([]);
+  });
+
+  it("keeps the engineering workbench roadmap calculation-first and within Railwise scope", () => {
+    const roadmap = readFileSync(ENGINEERING_ROADMAP_FILE, "utf8");
+    const bannedTerms = [
+      `${"岩"}${"土"}`,
+      `${"基"}${"坑"}`,
+      `${"土"}${"方"}`,
+      `${"开"}${"挖"}`,
+      `${"方"}${"量"}`,
+      "资料移交",
+      "证明分发",
+    ];
+
+    expect(roadmap).toContain("轨道、交通、铁路、工程测量和监测");
+    expect(roadmap).toContain("工作台的目标收敛为四件事");
+    expect(roadmap).toContain("暂不开发");
+    expect(bannedTerms.filter((term) => roadmap.includes(term))).toEqual([]);
   });
 
   it("documents the compatibility boundary for legacy reasonix storage names", () => {

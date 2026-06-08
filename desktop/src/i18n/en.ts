@@ -790,7 +790,7 @@ export const en = {
     browse: "Browse",
     renameSession: "Rename session",
     renamePlaceholder: "Session title",
-    engineeringWorkbench: "Engineering analysis workbench",
+    engineeringWorkbench: "Indoor adjustment workbench",
     approvalRules: "Approval rules",
     settings: "Settings",
     cancel: "Cancel",

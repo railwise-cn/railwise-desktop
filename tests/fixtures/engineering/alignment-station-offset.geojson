@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "role": "alignment", "startStationM": 1000 },
+      "geometry": { "type": "LineString", "coordinates": [[0, 0], [100, 0]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "role": "observation", "id": "G1", "designOffsetM": 0, "toleranceMm": 6000 },
+      "geometry": { "type": "Point", "coordinates": [40, 5] }
+    }
+  ]
+}

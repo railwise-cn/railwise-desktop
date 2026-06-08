@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<LandXML>
+  <Alignments>
+    <Alignment name="SpiralMain" staStart="1000">
+      <CoordGeom>
+        <Spiral spiType="clothoid" rot="ccw" length="100" radiusStart="INF" radiusEnd="100">
+          <Start>0 0</Start>
+          <PI>67.558 0</PI>
+          <End>97.528769 16.371405</End>
+        </Spiral>
+      </CoordGeom>
+    </Alignment>
+  </Alignments>
+  <CgPoints>
+    <CgPoint name="S50" code="observation" desc="designOffsetM=0;toleranceMm=1000">49.921931 2.081009 0</CgPoint>
+  </CgPoints>
+</LandXML>

@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { ok } from "../util.js";
 
-type Clause = {
+export type Clause = {
   code: string;
   title: string;
   section: string;
@@ -82,60 +82,6 @@ const STANDARDS: Clause[] = [
     mandatory: false,
   },
   {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "3.0.1",
-    content:
-      "开挖深度大于等于5m或开挖深度小于5m但现场地质条件和周围环境较复杂的基坑工程，应实施基坑工程监测。",
-    keywords: ["基坑", "开挖深度", "5m", "监测"],
-    mandatory: true,
-  },
-  {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "3.0.2",
-    content:
-      "基坑工程监测应包括以下必测项目：1 围护墙（桩）顶水平位移；2 周边地表沉降；3 围护墙（桩）顶竖向位移。安全等级为一级的基坑还应包括：深层水平位移、支撑轴力、地下水位等。",
-    keywords: ["必测项目", "围护墙", "水平位移", "地表沉降", "支撑轴力", "地下水位"],
-    mandatory: true,
-  },
-  {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "5.0.1",
-    content:
-      "围护墙顶水平位移报警值：一级基坑不应大于30mm，且日变化量不应大于3mm/d；二级基坑不应大于40mm。围护墙深层最大水平位移报警值：一级不应大于0.3%H（H为基坑深度），二级不应大于0.6%H。",
-    keywords: ["报警值", "围护墙", "水平位移", "30mm", "日变化量", "3mm/d"],
-    mandatory: true,
-  },
-  {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "5.0.3",
-    content:
-      "地表沉降报警值：一级基坑的最大沉降量不应大于0.15%L（L为基坑边长），且日沉降量不应大于2mm/d。管线变形报警值应根据管线类型和材质确定，刚性管线不应大于10mm。",
-    keywords: ["地表沉降", "管线", "报警值", "日沉降量"],
-    mandatory: true,
-  },
-  {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "6.2.1",
-    content:
-      "基坑工程监测频率应根据施工进程确定：开挖期间不应少于1次/天；当出现异常情况或达到报警值时，应加密监测并持续至变形趋于稳定。基坑使用超过设计工况时间时，监测频率不应低于1次/周。",
-    keywords: ["监测频率", "开挖期间", "1次/天", "加密监测"],
-    mandatory: true,
-  },
-  {
-    code: "GB 50497",
-    title: "建筑基坑工程监测技术标准",
-    section: "7.1.1",
-    content:
-      "监测点布置应满足监测要求：围护墙顶水平位移监测点沿基坑周边布置，间距不宜大于20m，关键部位应适当加密。地表沉降监测点应在开挖影响范围内按断面布置。",
-    keywords: ["监测点布置", "间距", "20m", "断面"],
-    mandatory: false,
-  },
-  {
     code: "JGJ 8",
     title: "建筑变形测量规范",
     section: "3.0.2",
@@ -167,8 +113,8 @@ const STANDARDS: Clause[] = [
     title: "建筑变形测量规范",
     section: "5.1.1",
     content:
-      "建筑沉降稳定标准：最后100天的沉降速率小于0.01~0.04mm/d（由基础类型确定），可认为已进入稳定阶段。地基为砂类土时取小值，地基为淤泥质黏土时取大值。",
-    keywords: ["沉降稳定", "沉降速率", "0.01mm/d", "稳定标准"],
+      "轨道交通保护区沉降监测宜以连续观测序列判定趋势；最近100天沉降速率持续小于0.01~0.04mm/d且无新增异常点时，可作为趋势稳定的参考条件，并应结合项目控制值复核。",
+    keywords: ["保护区沉降", "沉降速率", "0.01mm/d", "趋势稳定"],
     mandatory: false,
   },
   {
@@ -218,6 +164,10 @@ const STANDARDS: Clause[] = [
   },
 ];
 
+export function getSurveyStandardClauses(): Clause[] {
+  return STANDARDS.map((clause) => ({ ...clause, keywords: [...clause.keywords] }));
+}
+
 function score(clause: Clause, keywords: string[]) {
   const lower = keywords.map((k) => k.toLowerCase());
   let s = 0;
@@ -233,14 +183,14 @@ function score(clause: Clause, keywords: string[]) {
 export function registerStandard(server: McpServer): void {
   server.tool(
     "standard_query",
-    "查询工程监测相关规范条文。内置 GB 50911（轨道交通监测）、GB 50497（基坑监测）、JGJ 8（变形测量）、GB 50026（工程测量）的核心条文。qa-reviewer 在审查技术方案时必须调用此工具获取准确条文依据，严禁凭记忆引用。",
+    "查询轨道交通监测、变形测量和工程测量相关规范条文。内置 GB 50911、JGJ 8、GB 50026 的核心条文。qa-reviewer 在审查技术方案时必须调用此工具获取准确条文依据，严禁凭记忆引用。",
     {
       keywords: z
         .array(z.string())
         .min(1)
-        .describe('查询关键词列表，如 ["报警值", "基坑"] 或 ["水准", "闭合差"]'),
+        .describe('查询关键词列表，如 ["报警值", "轨道交通"] 或 ["水准", "闭合差"]'),
       standardCode: z
-        .enum(["GB 50911", "GB 50497", "JGJ 8", "GB 50026", "all"])
+        .enum(["GB 50911", "JGJ 8", "GB 50026", "all"])
         .default("all")
         .describe("限定查询的规范编号，默认搜索全部"),
       mandatoryOnly: z.boolean().default(false).describe("是否只返回强制性条文"),
@@ -258,7 +208,17 @@ export function registerStandard(server: McpServer): void {
       if (scored.length === 0)
         return ok({
           query: args.keywords,
+          standard_query_summary: {
+            query: args.keywords.join("、"),
+            standard_filter: args.standardCode,
+            mandatory_only: args.mandatoryOnly,
+            total_matches: 0,
+            returned: 0,
+            mandatory_returned: 0,
+            top_result: null,
+          },
           results: [],
+          export_rows: [],
           message: `未找到与关键词 [${args.keywords.join(", ")}] 匹配的条文。建议调整关键词或扩大搜索范围。`,
         });
 
@@ -270,6 +230,27 @@ export function registerStandard(server: McpServer): void {
         mandatory: r.clause.mandatory,
         relevance: r.score,
       }));
+      const standardQuerySummary = {
+        query: args.keywords.join("、"),
+        standard_filter: args.standardCode,
+        mandatory_only: args.mandatoryOnly,
+        total_matches: scored.length,
+        returned: results.length,
+        mandatory_returned: results.filter((result) => result.mandatory).length,
+        top_result: results[0]
+          ? {
+              code: results[0].code,
+              title: results[0].title,
+              section: results[0].section,
+              mandatory: results[0].mandatory,
+              relevance: results[0].relevance,
+            }
+          : null,
+      };
+      const exportRows = results.map((result) => ({
+        row_type: "standard_clause_result",
+        ...result,
+      }));
 
       return ok({
         query: args.keywords,
@@ -277,7 +258,9 @@ export function registerStandard(server: McpServer): void {
         mandatory_only: args.mandatoryOnly,
         total_matches: scored.length,
         returned: results.length,
+        standard_query_summary: standardQuerySummary,
         results,
+        export_rows: exportRows,
         message: `✅ 共找到 ${scored.length} 条相关条文，返回前 ${results.length} 条（按相关度排序）。`,
       });
     },

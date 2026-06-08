@@ -1,0 +1,25 @@
+{
+  "schema": "railwise.engineering.indoorAdjustmentBenchmark.v1",
+  "title": "PRD known leveling adjustment benchmark",
+  "tool": "survey_level_adjust",
+  "source": "Analytical equal-weight leveling baseline derived from the PRD least-squares level contract.",
+  "input": {
+    "known_bms": [{ "name": "BM1", "h": 100, "fixed": true }],
+    "segments": [
+      { "from": "BM1", "to": "TP1", "dh_m": 1.234, "length_km": 1, "n_stations": 8 },
+      { "from": "BM1", "to": "TP1", "dh_m": 1.236, "length_km": 1, "n_stations": 8 }
+    ],
+    "weight_mode": "length"
+  },
+  "expected": {
+    "method": "least_squares_level_adjustment",
+    "weight_mode": "length",
+    "redundancy": 1,
+    "unit_weight_mse_mm": 1.414,
+    "adjusted_heights": {
+      "BM1": { "h": 100, "mh": 0 },
+      "TP1": { "h": 101.235, "mh": 1 }
+    },
+    "segment_residuals_mm": [1, -1]
+  }
+}

@@ -107,6 +107,175 @@ type SheetData = {
   columnWidths?: number[];
   freezeRow?: number;
 };
+type ExportRow = Record<string, unknown>;
+
+const ROW_TYPE_SHEET_NAMES: Record<string, string> = {
+  standard_clause_result: "规范条文",
+  monitoring_point_summary: "监测点汇总",
+  monitoring_period_observation: "监测观测记录",
+  deformation_point_summary: "变形测点汇总",
+  deformation_observation: "变形观测记录",
+  deformation_period_rate: "变形速率",
+  deformation_prediction: "变形预测",
+  deformation_comparison_point: "变形对比",
+  coord_transformed_point: "坐标转换成果",
+  field_coordinate_record: "外业坐标记录",
+  field_observation_record: "外业观测记录",
+  calculator_leveling_closure: "水准闭合计算",
+  calculator_traverse_closure: "导线闭合计算",
+  calculator_alert_level: "预警等级判定",
+  leveling_adjusted_height: "水准平差高程",
+  leveling_observation_residual: "水准观测残差",
+  level_adjustment_summary: "水准网平差摘要",
+  level_adjusted_height: "水准网平差高程",
+  level_adjust_segment_residual: "水准网测段残差",
+  level_network_node: "水准网节点示意",
+  level_network_segment: "水准网测段示意",
+  traverse_adjustment_summary: "导线平差摘要",
+  traverse_adjusted_coordinate: "导线平差坐标",
+  traverse_error_ellipse: "导线误差椭圆参数",
+  traverse_adjusted_azimuth: "导线方位角",
+  control_network_coordinate_point: "控制网坐标平差",
+  control_network_traverse_point: "导线闭合点",
+  leveling_route_point: "水准路线点",
+  leveling_route_segment: "水准路线测段",
+  gnss_point: "GNSS平差点",
+  gnss_baseline_residual: "GNSS基线残差",
+  cpiii_deviation_point: "CPIII偏差点",
+  cpiii_adjusted_point: "CPIII平差点",
+  cpiii_observation_residual: "CPIII观测残差",
+  direction_face_pair_check: "方向观测盘位差",
+  direction_zero_closure_check: "方向归零差",
+  direction_round_summary: "方向测回统计",
+  line_stakeout_point_result: "线路放样复核",
+  track_geometry_review_point: "轨道几何复核",
+  track_geometry_section_summary: "轨道几何区段统计",
+  alignment_station_offset_point: "线路里程偏距",
+  shield_guidance_ring_result: "盾构导向环号",
+  cross_section_profile_deviation: "断面轮廓偏差",
+  water_level_well_summary: "水位测点汇总",
+  water_level_period_observation: "水位观测记录",
+  water_level_point_change: "水位点位变化",
+  inclinometer_depth_summary: "测斜深度汇总",
+  inclinometer_period_observation: "测斜观测记录",
+  inclinometer_reading_difference: "测斜读数差",
+  axial_force_sensor_summary: "轴力测点汇总",
+  axial_force_period_observation: "轴力观测记录",
+  axial_force_reading_result: "轴力读数成果",
+  survey_distance_segment: "测距批量反算",
+  survey_distance_observation: "外业距离观测",
+  survey_distance_result: "测距计算成果",
+  angle_conversion_result: "角度批量换算",
+  angle_group_summary: "角度分组统计",
+  survey_angle_conversion: "角度换算成果",
+  chart_data_point: "图表数据",
+  chart_threshold_line: "图表阈值线",
+};
+
+function toCellValue(value: unknown): CellValue {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
+  return JSON.stringify(value);
+}
+
+function safeSheetName(name: string): string {
+  const cleaned = name.replace(/[\\/?*:[\]]/g, " ").trim() || "Sheet";
+  return [...cleaned].slice(0, 31).join("");
+}
+
+function makeUniqueSheetName(name: string, used: Set<string>): string {
+  const base = safeSheetName(name);
+  let candidate = base;
+  let index = 2;
+  while (used.has(candidate)) {
+    const suffix = `_${index}`;
+    candidate = `${[...base].slice(0, Math.max(1, 31 - suffix.length)).join("")}${suffix}`;
+    index++;
+  }
+  used.add(candidate);
+  return candidate;
+}
+
+function withUniqueSheetNames(sheets: SheetData[]): SheetData[] {
+  const used = new Set<string>();
+  return sheets.map((sheet) => ({
+    ...sheet,
+    name: makeUniqueSheetName(sheet.name, used),
+  }));
+}
+
+function rowTypeOf(row: ExportRow): string {
+  const rowType = row.row_type;
+  return typeof rowType === "string" && rowType.trim() ? rowType.trim() : "export_row";
+}
+
+function buildExportRowSheets(rows: ExportRow[]): { sheets: SheetData[]; rowTypeCounts: Record<string, number> } {
+  const grouped = new Map<string, ExportRow[]>();
+  for (const row of rows) {
+    const rowType = rowTypeOf(row);
+    const group = grouped.get(rowType) ?? [];
+    group.push(row);
+    grouped.set(rowType, group);
+  }
+
+  const rowTypeCounts: Record<string, number> = {};
+  const sheets = [...grouped.entries()].map(([rowType, groupRows]) => {
+    rowTypeCounts[rowType] = groupRows.length;
+    const headers: string[] = [];
+    for (const row of groupRows) {
+      for (const key of Object.keys(row)) {
+        if (!headers.includes(key)) headers.push(key);
+      }
+    }
+
+    return {
+      name: ROW_TYPE_SHEET_NAMES[rowType] ?? rowType,
+      headers,
+      rows: groupRows.map((row) => headers.map((header) => toCellValue(row[header]))),
+      freezeRow: 1,
+    };
+  });
+
+  return { sheets, rowTypeCounts };
+}
+
+function buildSummarySheet(summary: Record<string, unknown>): SheetData {
+  return {
+    name: "质量摘要",
+    headers: ["字段", "值"],
+    rows: Object.entries(summary).map(([key, value]) => [key, toCellValue(value)]),
+    columnWidths: [24, 60],
+    freezeRow: 1,
+  };
+}
+
+function buildManifestSheet(input: {
+  title: string;
+  sourceTool?: string;
+  generatedSheetCount: number;
+  exportRowCount: number;
+  summaryFieldCount: number;
+  rowTypeCounts: Record<string, number>;
+}): SheetData {
+  const rowTypeText = Object.entries(input.rowTypeCounts)
+    .map(([rowType, count]) => `${rowType}:${count}`)
+    .join("，");
+
+  return {
+    name: "成果清单",
+    headers: ["项目", "值"],
+    rows: [
+      ["成果标题", input.title],
+      ["来源工具", input.sourceTool ?? ""],
+      ["生成工作表数", input.generatedSheetCount],
+      ["导出数据行数", input.exportRowCount],
+      ["摘要字段数", input.summaryFieldCount],
+      ["数据分组", rowTypeText],
+    ],
+    columnWidths: [20, 60],
+    freezeRow: 1,
+  };
+}
 
 function buildSharedStrings(sheets: SheetData[]): { xml: string; lookup: Map<string, number> } {
   const lookup = new Map<string, number>();
@@ -304,7 +473,7 @@ const cellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 export function registerExcel(server: McpServer): void {
   server.tool(
     "excel_export",
-    "将监测数据导出为 .xlsx（Excel）文件。支持多 Sheet、表头冻结、自动筛选、数值格式化。用于导出基坑监测日报/周报数据表、变形汇总表、轴力统计表等。data-analyst 或 writer 需要输出 Excel 报表时必须调用此工具。",
+    "将监测数据导出为 .xlsx（Excel）文件。支持多 Sheet、表头冻结、自动筛选、数值格式化。用于导出轨道交通监测日报/周报数据表、变形汇总表、轴力统计表等。data-analyst 或 writer 需要输出 Excel 报表时必须调用此工具。",
     {
       sheets: z
         .array(
@@ -320,12 +489,40 @@ export function registerExcel(server: McpServer): void {
           }),
         )
         .min(1)
+        .optional()
         .describe("工作表列表，支持多个 Sheet"),
+      sourceTool: z.string().optional().describe("结构化成果来源工具名，如 standard_query、deformation_rate"),
+      summary: z.record(z.unknown()).optional().describe("工具返回的 summary 对象，将导出为质量摘要 Sheet"),
+      exportRows: z
+        .array(z.record(z.unknown()))
+        .optional()
+        .describe("工具返回的 export_rows 对象数组，将按 row_type 自动分组导出"),
       title: z.string().default("监测数据").describe("文件名（不含扩展名）"),
       outputPath: z.string().optional().describe("输出路径，默认 ./[title].xlsx"),
     },
     async (args) => {
-      const sheetsData: SheetData[] = args.sheets.map((s) => {
+      const exportRows = args.exportRows ?? [];
+      const summaryFieldCount = args.summary ? Object.keys(args.summary).length : 0;
+      const { sheets: exportRowSheets, rowTypeCounts } = buildExportRowSheets(exportRows);
+      const deliverableSheets: SheetData[] =
+        args.summary || exportRows.length > 0
+          ? [
+              buildManifestSheet({
+                title: args.title,
+                sourceTool: args.sourceTool,
+                generatedSheetCount: 1 + (args.summary ? 1 : 0) + (args.sheets?.length ?? 0) + exportRowSheets.length,
+                exportRowCount: exportRows.length,
+                summaryFieldCount,
+                rowTypeCounts,
+              }),
+              ...(args.summary ? [buildSummarySheet(args.summary)] : []),
+            ]
+          : [];
+      const requestedSheets = args.sheets ?? [];
+      const rawSheets = withUniqueSheetNames([...deliverableSheets, ...requestedSheets, ...exportRowSheets]);
+      if (rawSheets.length === 0) throw new Error("excel_export 需要提供 sheets 或 exportRows");
+
+      const sheetsData: SheetData[] = rawSheets.map((s) => {
         const widths =
           s.columnWidths ??
           s.headers.map((h, i) => {
@@ -351,17 +548,26 @@ export function registerExcel(server: McpServer): void {
       const dest = args.outputPath ?? `./${args.title.replace(/[/\\:*?"<>|]/g, "_")}.xlsx`;
       await writeBinaryFile(dest, xlsxBytes);
 
-      const totalRows = args.sheets.reduce((s, sh) => s + sh.rows.length, 0);
-      const totalCols = args.sheets.reduce((s, sh) => s + sh.headers.length, 0);
+      const totalRows = rawSheets.reduce((s, sh) => s + sh.rows.length, 0);
+      const totalCols = rawSheets.reduce((s, sh) => s + sh.headers.length, 0);
+      const generatedSheets = rawSheets.map((s) => s.name);
 
       return ok({
         output_path: dest,
         file_size_kb: Number((xlsxBytes.length / 1024).toFixed(1)),
         format: "xlsx (Office Open XML SpreadsheetML)",
-        sheets: args.sheets.map((s) => ({ name: s.name, columns: s.headers.length, rows: s.rows.length })),
+        sheets: rawSheets.map((s) => ({ name: s.name, columns: s.headers.length, rows: s.rows.length })),
         total_rows: totalRows,
         total_columns: totalCols,
-        message: `✅ Excel 报表已导出：${dest}（${(xlsxBytes.length / 1024).toFixed(1)} KB），${args.sheets.length}个工作表，共 ${totalRows} 行数据`,
+        export_summary: {
+          source_tool: args.sourceTool ?? null,
+          export_row_count: exportRows.length,
+          summary_field_count: summaryFieldCount,
+          generated_sheet_count: rawSheets.length,
+          generated_sheets: generatedSheets,
+          row_type_counts: rowTypeCounts,
+        },
+        message: `✅ Excel 报表已导出：${dest}（${(xlsxBytes.length / 1024).toFixed(1)} KB），${rawSheets.length}个工作表，共 ${totalRows} 行数据`,
       });
     },
   );

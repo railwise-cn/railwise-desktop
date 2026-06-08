@@ -65,19 +65,53 @@ describe("bundled Railwise engineering workspace", () => {
     const tools = new Set(store.read("data-analyst")?.allowedTools ?? []);
 
     for (const name of [
+      "survey_level_adjust",
+      "survey_traverse_adjust",
+      "survey_calculator_leveling_adjustment",
+      "survey_calculator_traverse_adjustment",
+      "survey_calculator_alert_level",
+      "survey_calculator_leveling_closure",
+      "survey_calculator_traverse_closure",
+      "survey_monitoring_csv",
+      "survey_format_parser",
+      "survey_chart_generator",
+      "survey_deformation_rate",
       "survey_control_network",
       "survey_cpiii_adjustment",
       "survey_coord_transform",
       "survey_distance_calculator",
       "survey_angle_convert",
+      "survey_deformation_comparison",
       "survey_inclinometer",
       "survey_cross_section",
       "survey_axial_force",
       "survey_water_level",
-      "survey_pile_stakeout",
+      "survey_line_stakeout",
+      "survey_track_geometry_review",
+      "survey_alignment_station_offset",
       "survey_shield_guidance",
     ]) {
       expect(tools.has(name), `data-analyst cannot call ${name}`).toBe(true);
+    }
+  });
+
+  it("allows the writer subagent to export report and workbook deliverables", () => {
+    const store = new SkillStore({ projectRoot: RAILWISE_ROOT, disableBuiltins: true });
+    const tools = new Set(store.read("writer")?.allowedTools ?? []);
+
+    for (const name of ["survey_report_export", "survey_excel_export"]) {
+      expect(tools.has(name), `writer cannot call ${name}`).toBe(true);
+    }
+  });
+
+  it("allows design and final-review gates to query engineering standards", () => {
+    const store = new SkillStore({ projectRoot: RAILWISE_ROOT, disableBuiltins: true });
+
+    for (const name of ["architect", "qa-reviewer"]) {
+      const tools = new Set(store.read(name)?.allowedTools ?? []);
+      expect(tools.has("survey_standard_query"), `${name} cannot call survey_standard_query`).toBe(
+        true,
+      );
     }
   });
 

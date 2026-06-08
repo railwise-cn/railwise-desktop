@@ -1,0 +1,10 @@
+role,id,x,y,observationType,from,to,value,sigmaMm,sigmaArcSec
+known,A,0,0,,,,,,
+known,B,100,0,,,,,,
+known,C,50,100,,,,,,
+unknown,P,49.8,40.2,,,,,,
+observation,AP-1,,,distance,A,P,64.03124,2,
+observation,AP-2,,,distance,A,P,64.04624,2,
+observation,BP,,,distance,B,P,64.03124,2,
+observation,CP,,,distance,C,P,60,2,
+observation,AZ-AP,,,azimuth,A,P,51.340191746,,3

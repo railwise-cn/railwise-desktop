@@ -1,0 +1,11 @@
+role,id,x,y,observationType,directionSet,roundId,face,sequence,from,to,value,sigmaMm,sigmaArcSec
+known,A,0,0,,,,,,,,,,
+known,B,100,0,,,,,,,,,,
+unknown,P,49.8,40.2,,,,,,,,,,
+observation,D1,,,distance,,,,,A,P,64.03124,2,
+observation,D2,,,distance,,,,,B,P,64.03124,2,
+observation,S1-B-L,,,direction,S1,R1,left,1,A,B,50,,3
+observation,S1-P-L,,,direction,S1,R1,left,2,A,P,11.340191746,,3
+observation,S1-P-R,,,direction,S1,R1,right,3,A,P,191.340391746,,3
+observation,S1-B-R,,,direction,S1,R1,right,4,A,B,230.0001,,3
+observation,S1-B-C,,,direction,S1,R1,left,5,A,B,50.0005,,3

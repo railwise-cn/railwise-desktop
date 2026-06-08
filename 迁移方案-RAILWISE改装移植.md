@@ -74,7 +74,7 @@
 | `axial_force` | 支撑轴力 |
 | `water_level` | 静力水准 |
 | `survey_calculator` / `distance_calculator` / `angle_convert` | 测量基础计算 |
-| `pile_stakeout` | 桩位放样 |
+| `line_stakeout` | 线路放样复核 |
 | `shield_guidance` | 盾构导向 |
 | `standard_query` | 规范条文查询 |
 | `monitoring_csv` / `format_parser` | 数据解析 |
@@ -153,7 +153,7 @@ description: 总工办质检员……拥有最高否决权
 model: kimi/kimi-k2.5      # ← 多厂商，Railwise 不支持
 color: "#E74C3C"           # ← Railwise 无此字段
 ---
-你是一位拥有20年从业经验的资深岩土工程与测绘质检总工……
+你是一位拥有20年从业经验的资深轨道交通、铁路、工程测量与监测质检总工……
 ```
 
 **转成 Railwise skill**（`.reasonix/skills/qa-reviewer.md`）：
@@ -164,8 +164,8 @@ runAs: subagent
 model: pro
 allowed-tools: read_file, search_files, search_content, standard_query
 ---
-你是一位拥有20年从业经验的资深岩土工程与测绘质检总工。你的职责是对所有提交给你的
-工程勘测方案、监测报告、投标技术文件进行最严苛的合规性与质量审查……
+你是一位拥有20年从业经验的资深轨道交通、铁路、工程测量与监测质检总工。你的职责是对所有提交给你的
+工程测量方案、监测报告、投标技术文件进行最严苛的合规性与质量审查……
 
 （System Prompt 正文从原 agent .md 原样粘贴）
 ```
@@ -362,4 +362,3 @@ description: 快速生成监测日报/周报。输入数据文件路径或粘贴
    和 prompt 里要用全名。
 5. **无可视化 color / 自定义 slash 命令**：是 UI 层能力，Railwise 不提供，属可接受损失。
 ```
-

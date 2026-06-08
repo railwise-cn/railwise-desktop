@@ -1,0 +1,12 @@
+role,id,x,y,observationType,from,to,value,sigmaMm,networkMode
+settings,,,,,,,,,free
+unknown,A,-0.08,0.04,,,,,,
+unknown,B,100.06,-0.05,,,,,,
+unknown,C,100.04,80.08,,,,,,
+unknown,D,-0.06,79.94,,,,,,
+observation,AB,,,distance,A,B,100,2,
+observation,BC,,,distance,B,C,80,2,
+observation,CD,,,distance,C,D,100,2,
+observation,DA,,,distance,D,A,80,2,
+observation,AC,,,distance,A,C,128.062484749,2,
+observation,BD,,,distance,B,D,128.062484749,2,

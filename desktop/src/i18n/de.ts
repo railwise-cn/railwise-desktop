@@ -774,7 +774,7 @@ export const de: typeof en = {
     importConfirm: "Importieren",
     browse: "Durchsuchen",
     renameSession: "Sitzung umbenennen",
-    engineeringWorkbench: "Engineering-Analysearbeitsbereich",
+    engineeringWorkbench: "Innendienst-Ausgleichungsarbeitsbereich",
     renamePlaceholder: "Sitzungstitel",
     approvalRules: "Genehmigungsregeln",
     settings: "Einstellungen",

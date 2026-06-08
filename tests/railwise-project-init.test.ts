@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { loadDotMcpJson } from "../src/mcp/dot-mcp-json.js";
 import { initRailwiseProject } from "../src/railwise/project-init.js";
 import { runRailwiseReadinessChecks } from "../src/railwise/readiness.js";
+import { SkillStore } from "../src/skills.js";
 
 describe("initRailwiseProject", () => {
   let parentDir: string;
@@ -34,6 +35,9 @@ describe("initRailwiseProject", () => {
       "REASONIX.md",
       ".mcp.json",
       ".reasonix/skills/data-analyst.md",
+      ".claude/skills/monitoring-design/SKILL.md",
+      ".claude/skills/report-writing/SKILL.md",
+      ".claude/skills/standard-reference/SKILL.md",
       "data/monitoring-settlement.csv",
       "data/cpiii-control-points.json",
       "data/shield-guidance.json",
@@ -48,6 +52,15 @@ describe("initRailwiseProject", () => {
     const mcp = loadDotMcpJson(result.projectRoot);
     expect(mcp?.survey?.command).toBe("node");
     expect(mcp?.survey?.args?.join(" ")).toContain("survey-mcp/dist/index.js");
+
+    const skillNames = new Set(
+      new SkillStore({ projectRoot: result.projectRoot, disableBuiltins: true })
+        .list()
+        .map((skill) => skill.name),
+    );
+    expect(skillNames.has("monitoring-design")).toBe(true);
+    expect(skillNames.has("report-writing")).toBe(true);
+    expect(skillNames.has("standard-reference")).toBe(true);
 
     const readiness = runRailwiseReadinessChecks(result.projectRoot);
     expect(readiness.map((check) => [check.id, check.level])).toEqual([

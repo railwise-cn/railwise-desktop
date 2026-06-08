@@ -1,0 +1,10 @@
+role,id,x,y,observationType,directionSet,from,to,value,sigmaMm,sigmaArcSec
+known,A,0,0,,,,,,,
+known,B,100,0,,,,,,,
+unknown,P,49.8,40.2,,,,,,,
+observation,D1,,,distance,,A,P,64.03124,2,
+observation,D2,,,distance,,B,P,64.03124,2,
+observation,S1-B,,,direction,S1,A,B,50,,3
+observation,S1-P,,,direction,S1,A,P,11.340191746,,3
+observation,S2-A,,,direction,S2,B,A,10,,3
+observation,S2-P,,,direction,S2,B,P,48.659808254,,3

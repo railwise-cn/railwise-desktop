@@ -759,7 +759,7 @@ export const ja: typeof en = {
     browse: "参照",
     renameSession: "セッション名を変更",
     renamePlaceholder: "セッションタイトル",
-    engineeringWorkbench: "エンジニアリング分析ワークベンチ",
+    engineeringWorkbench: "内業調整ワークベンチ",
     approvalRules: "承認ルール",
     settings: "設定",
     cancel: "キャンセル",

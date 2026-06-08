@@ -16,7 +16,15 @@ describe("Railwise engineering readiness", () => {
     expect(byId.get("railwise-skills")).toMatchObject({ level: "ok" });
     expect(byId.get("railwise-chief-sop")).toMatchObject({ level: "ok" });
     expect(byId.get("railwise-survey-mcp")?.detail).toContain("dist/index.js");
-    expect(byId.get("railwise-skills")?.detail).toContain("20 project skills");
+    expect(byId.get("railwise-skills")?.detail).toContain("20 reasonix skills");
+    expect(byId.get("railwise-skills")?.detail).toContain("11 copied Claude skills");
+    expect(byId.get("railwise-skills")?.detail).toContain(
+      "data-analyst can call 25 migrated survey tools",
+    );
+    expect(byId.get("railwise-skills")?.detail).toContain(
+      "formal deliverables: Markdown/Word reports, Excel workbooks, SVG charts",
+    );
+    expect(byId.get("railwise-skills")?.detail).toContain("review gates can query standards");
   });
 
   it("adds Railwise readiness rows to doctor output for the bundled workspace", async () => {

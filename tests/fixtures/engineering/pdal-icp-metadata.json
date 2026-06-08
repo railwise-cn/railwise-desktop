@@ -1,0 +1,9 @@
+{
+  "stages": {
+    "filters.icp": {
+      "transform": "1 0 0 0 0 1 0 0 0 0 1 0 0.12 -0.03 0.01 1",
+      "fitness": 0.0042,
+      "converged": true
+    }
+  }
+}

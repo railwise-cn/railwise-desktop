@@ -34,7 +34,14 @@ vi.mock("./theme", () => ({
   themeForStyle: vi.fn(() => "dark"),
 }));
 
-import { readWindowExpanded, reduce, toggleWindowExpanded } from "./App";
+import {
+  getTitlebarWindowControls,
+  initialDesktopTabs,
+  isTauriDesktopRuntime,
+  readWindowExpanded,
+  reduce,
+  toggleWindowExpanded,
+} from "./App";
 import { getThreadMaxWidth } from "./ui/thread-layout";
 
 function initialState(): Parameters<typeof reduce>[0] {
@@ -215,6 +222,34 @@ describe("Desktop App reducer — usage", () => {
 });
 
 describe("Desktop App window controls", () => {
+  it("uses no-op titlebar window controls outside the Tauri runtime", async () => {
+    const runtime = globalThis as typeof globalThis & { isTauri?: boolean };
+    const previous = runtime.isTauri;
+    delete runtime.isTauri;
+
+    try {
+      expect(isTauriDesktopRuntime()).toBe(false);
+      const win = getTitlebarWindowControls();
+
+      await expect(readWindowExpanded(win, true)).resolves.toBe(false);
+      await expect(readWindowExpanded(win, false)).resolves.toBe(false);
+      await expect(win.minimize()).resolves.toBeUndefined();
+      await expect(win.close()).resolves.toBeUndefined();
+      await expect(win.listen("tauri://resize", async () => {})).resolves.toEqual(expect.any(Function));
+    } finally {
+      if (previous === undefined) delete runtime.isTauri;
+      else runtime.isTauri = previous;
+    }
+  });
+
+  it("creates a browser preview tab only outside Tauri during development", () => {
+    expect(initialDesktopTabs(false, true)).toEqual([
+      { id: "browser-preview", workspaceDir: "Browser Preview" },
+    ]);
+    expect(initialDesktopTabs(true, true)).toEqual([]);
+    expect(initialDesktopTabs(false, false)).toEqual([]);
+  });
+
   it("treats macOS zoom state as fullscreen", async () => {
     const win = {
       isFullscreen: vi.fn(async () => true),

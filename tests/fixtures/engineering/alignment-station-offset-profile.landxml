@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<LandXML>
+  <Alignments>
+    <Alignment name="ProfileMain" staStart="1000">
+      <CoordGeom>
+        <Line>
+          <Start>0 0</Start>
+          <End>100 0</End>
+        </Line>
+      </CoordGeom>
+      <Profile>
+        <ProfAlign name="FinishedGrade">
+          <PVI>1000 10.000</PVI>
+          <PVI>1100 12.000</PVI>
+        </ProfAlign>
+        <ProfSurf name="ExistingGround">
+          <PntList2D>1000 10.500 1100 12.500</PntList2D>
+        </ProfSurf>
+      </Profile>
+    </Alignment>
+  </Alignments>
+  <CgPoints>
+    <CgPoint name="V40" code="observation" desc="designOffsetM=0;toleranceMm=100;verticalToleranceMm=20">40 0 10.85</CgPoint>
+  </CgPoints>
+</LandXML>

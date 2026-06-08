@@ -1,0 +1,7 @@
+role,id,z,observationType,from,to,value,sigmaMm
+known,BM1,100,,,,,
+known,BM2,101,,,,,
+unknown,TP1,100.3,,,,,
+observation,HD1,,height_difference,BM1,TP1,0.42,1
+observation,HD2,,height_difference,TP1,BM2,0.579,1
+observation,HD3,,height_difference,BM1,BM2,1.0,1

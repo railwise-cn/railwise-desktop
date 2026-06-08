@@ -52,7 +52,7 @@ const PAGE_META: ReadonlyArray<{ id: PageId; icon: keyof typeof I }> = [
   { id: "shortcuts", icon: "cpu" },
 ];
 
-// RAILWISE 精简开关：隐藏与测绘场景无关的设置项（网页搜索引擎、cc-switch 导入）。
+// RAILWISE 精简开关：隐藏与工程测量场景无关的设置项（网页搜索引擎、cc-switch 导入）。
 // 置为 false 即可恢复原始完整设置。
 const RAILWISE_HIDE_WEB_SEARCH = true;
 const RAILWISE_HIDE_CC_SWITCH = true;
@@ -764,7 +764,7 @@ function PageGeneral({
             }}
           />
         </div>
-        {/* RAILWISE 精简：隐藏与测绘场景无关的网页搜索引擎选择与凭据配置 */}
+        {/* RAILWISE 精简：隐藏与工程测量场景无关的网页搜索引擎选择与凭据配置 */}
         {!RAILWISE_HIDE_WEB_SEARCH ? (
           <>
             <div className="setting-row">

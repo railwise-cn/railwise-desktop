@@ -244,6 +244,29 @@ type WindowControls = Pick<
   "isFullscreen" | "isMaximized" | "setFullscreen" | "toggleMaximize"
 >;
 
+type TitlebarWindowControls = Pick<
+  ReturnType<typeof getCurrentWindow>,
+  "close" | "isFullscreen" | "isMaximized" | "listen" | "minimize" | "setFullscreen" | "toggleMaximize"
+>;
+
+const noopTitlebarWindowControls: TitlebarWindowControls = {
+  close: async () => {},
+  isFullscreen: async () => false,
+  isMaximized: async () => false,
+  listen: async () => () => {},
+  minimize: async () => {},
+  setFullscreen: async () => {},
+  toggleMaximize: async () => {},
+};
+
+export function isTauriDesktopRuntime(): boolean {
+  return Boolean((globalThis as typeof globalThis & { isTauri?: boolean }).isTauri);
+}
+
+export function getTitlebarWindowControls(): TitlebarWindowControls {
+  return isTauriDesktopRuntime() ? getCurrentWindow() : noopTitlebarWindowControls;
+}
+
 export function readWindowExpanded(win: WindowControls, isMac: boolean): Promise<boolean> {
   return isMac ? win.isFullscreen() : win.isMaximized();
 }
@@ -1535,6 +1558,7 @@ function TabRuntime({
 
   const sendRpc = useCallback(
     (cmd: OutgoingCommand) => {
+      if (!isTauriDesktopRuntime()) return;
       const payload = { tabId, ...cmd };
       invoke("rpc_send", { line: JSON.stringify(payload) }).catch((err) =>
         console.error(`${cmd.cmd} failed`, err),
@@ -1755,6 +1779,7 @@ function TabRuntime({
     dropActiveRef.current = active;
   }, [active]);
   useEffect(() => {
+    if (!isTauriDesktopRuntime()) return;
     const ws = state.settings?.workspaceDir;
     let unlisten: (() => void) | null = null;
     let cancelled = false;
@@ -1985,10 +2010,12 @@ function TabRuntime({
     previousApprovalSnapshotRef.current = currentSnapshot;
     wasBusyRef.current = state.busy;
 
-    void getCurrentWindow()
-      .isFocused()
-      .catch(() => true)
-      .then((focused) => {
+    const focusedPromise = isTauriDesktopRuntime()
+      ? getCurrentWindow()
+          .isFocused()
+          .catch(() => true)
+      : Promise.resolve(true);
+    void focusedPromise.then((focused) => {
         if (
           shouldShowCompletionToast({
             wasBusy,
@@ -3066,7 +3093,8 @@ function TitleBar({
   const isMac = document.documentElement.dataset.platform === "macos";
 
   useEffect(() => {
-    const win = getCurrentWindow();
+    if (!isTauriDesktopRuntime()) return;
+    const win = getTitlebarWindowControls();
     const syncWindowState = async () => {
       setIsMaximized(await readWindowExpanded(win, isMac));
     };
@@ -3103,7 +3131,7 @@ function TitleBar({
     return () => window.removeEventListener("mousedown", onDown);
   }, [menuOpen]);
 
-  const win = getCurrentWindow();
+  const win = getTitlebarWindowControls();
 
   return (
     <header className="titlebar">
@@ -3713,9 +3741,13 @@ function formatBytes(n: number): string {
 
 type TabMeta = { id: string; workspaceDir?: string; busy?: boolean };
 
+export function initialDesktopTabs(isTauriRuntime = isTauriDesktopRuntime(), isDev = import.meta.env.DEV): TabMeta[] {
+  return !isTauriRuntime && isDev ? [{ id: "browser-preview", workspaceDir: "Browser Preview" }] : [];
+}
+
 export function App() {
-  const [tabs, setTabs] = useState<TabMeta[]>([]);
-  const [activeTabId, setActiveTabId] = useState<string>("");
+  const [tabs, setTabs] = useState<TabMeta[]>(() => initialDesktopTabs());
+  const [activeTabId, setActiveTabId] = useState<string>(() => initialDesktopTabs()[0]?.id ?? "");
   const [startupFailure, setStartupFailure] = useState<StartupFailureState | null>(null);
   const [startupRetryNonce, setStartupRetryNonce] = useState(0);
   const dispatchersRef = useRef<Map<string, TabDispatcher>>(new Map());
@@ -3955,6 +3987,7 @@ export function App() {
     const setup = async () => {
       startupStderrRef.current = [];
       setStartupFailure(null);
+      if (!isTauriDesktopRuntime()) return [];
       const subs = await Promise.all([
         listen<{ data: string }>("rpc:event", (e) => {
           try {

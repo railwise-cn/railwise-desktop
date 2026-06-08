@@ -1,0 +1,5 @@
+kind,id,stationM,x,y,designOffsetM,toleranceMm
+alignment,A,1000,0,0,,
+alignment,B,1100,100,0,,
+alignment,C,1200,100,100,,
+observation,L1,,40,5,0,6000
