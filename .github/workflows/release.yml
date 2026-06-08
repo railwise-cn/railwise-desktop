@@ -24,9 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          # macOS now ships two single-arch shards so Apple Silicon and Intel
-          # users get separate DMGs. `rust` and `tauri` stay aligned per shard.
-          - { os: ubuntu-22.04, label: "linux-x64", rust: "x86_64-unknown-linux-gnu", tauri: "x86_64-unknown-linux-gnu" }
+          # Ship the platforms Railwise users actually need: Windows x64,
+          # macOS Apple Silicon, and macOS Intel.
           - { os: macos-15-intel, label: "macos-x64", rust: "x86_64-apple-darwin", tauri: "x86_64-apple-darwin" }
           - { os: macos-14, label: "macos-arm64", rust: "aarch64-apple-darwin", tauri: "aarch64-apple-darwin" }
           - { os: windows-latest, label: "windows-x64", rust: "x86_64-pc-windows-msvc", tauri: "x86_64-pc-windows-msvc" }
@@ -65,17 +64,6 @@ jobs:
         with:
           workspaces: desktop/src-tauri -> target
           key: ${{ matrix.target.label }}
-
-      - name: Install Linux bundle deps
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libgtk-3-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf
 
       - name: Install root deps
         run: npm ci
@@ -190,3 +178,32 @@ jobs:
           test -n "$node_bin"
           codesign -vvv --strict "$node_bin"
           codesign -d --entitlements :- "$node_bin" 2>&1 | grep -q "com.apple.security.inherit"
+
+  tidy-release:
+    name: tidy release assets
+    needs: bundle
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "name=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Keep only primary desktop downloads
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.tag.outputs.name }}
+        run: node scripts/prune-desktop-release-assets.mjs
