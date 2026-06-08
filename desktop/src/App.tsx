@@ -9,7 +9,16 @@ import {
 } from "@tauri-apps/plugin-notification";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { type Update, check } from "@tauri-apps/plugin-updater";
-import { Suspense, lazy, useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import { CommandPalette, Toast, buildCommands, useCommandPalette } from "./CommandPalette";
 import { WorkspaceProvider } from "./Markdown";
@@ -109,6 +118,7 @@ import { WorkdirPop } from "./ui/workdir-pop";
 
 const RIGHT_SIDEBAR_COLLAPSE_WIDTH = 1120;
 const LEFT_SIDEBAR_COLLAPSE_WIDTH = 760;
+const LATEST_THREAD_BOTTOM_GAP_PX = 132;
 
 const RESPONSIVE_STAGE = {
   WIDE: "wide",
@@ -1520,6 +1530,7 @@ function TabRuntime({
   const threadRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const virtuosoScrollerRef = useRef<HTMLElement | null>(null);
+  const latestAutoScrolledSessionRef = useRef<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsPage, setSettingsPage] = useState<SettingsPageId>("general");
   const [mcpEditTarget, setMcpEditTarget] = useState<{ raw: string; nonce: number } | null>(null);
@@ -2133,18 +2144,39 @@ function TabRuntime({
   }, []);
 
   const [showJumpButton, setShowJumpButton] = useState(false);
+  const forceThreadScrollerToLatest = useCallback((behavior: "auto" | "smooth" = "auto") => {
+    const el = virtuosoScrollerRef.current;
+    if (!el) return;
+    const top = Math.max(0, el.scrollHeight - el.clientHeight);
+    el.scrollTo({ top, behavior });
+  }, []);
+
   const scrollToLatest = useCallback(
     (behavior: "auto" | "smooth" = "smooth") => {
       if (messageItems.length === 0) return;
+      const session = currentSessionRef.current;
+      if (session) localStorage.removeItem(`reasonix.scroll.${session}`);
       virtuosoRef.current?.scrollToIndex({
         index: messageItems.length - 1,
         align: "end",
         behavior,
       });
+      requestAnimationFrame(() => {
+        forceThreadScrollerToLatest(behavior);
+        window.setTimeout(() => forceThreadScrollerToLatest(behavior), behavior === "smooth" ? 260 : 60);
+      });
       setShowJumpButton(false);
     },
-    [messageItems.length],
+    [forceThreadScrollerToLatest, messageItems.length],
   );
+
+  useEffect(() => {
+    if (messageItems.length === 0) return;
+    const sessionKey = state.currentSession ?? "new-session";
+    if (latestAutoScrolledSessionRef.current === sessionKey) return;
+    latestAutoScrolledSessionRef.current = sessionKey;
+    if (restoreScrollTop() === null) scrollToLatest("auto");
+  }, [messageItems.length, restoreScrollTop, scrollToLatest, state.currentSession]);
 
   useEffect(() => {
     if (!state.busy || messageItems.length === 0) return;
@@ -2641,7 +2673,11 @@ function TabRuntime({
                   setWdOpen(true);
                 }}
               />
-              <div className="thread" ref={threadRef}>
+              <div
+                className="thread"
+                ref={threadRef}
+                style={{ "--thread-latest-bottom-gap": `${LATEST_THREAD_BOTTOM_GAP_PX}px` } as CSSProperties}
+              >
                 {state.messages.length === 0 ? (
                   <div className="thread-inner thread-inner--standalone">
                     <EmptyState
@@ -2673,6 +2709,7 @@ function TabRuntime({
                     followOutput={(isAtBottom) => (isAtBottom || state.busy ? "smooth" : false)}
                     atBottomStateChange={(atBottom) => setShowJumpButton(!atBottom)}
                     components={{
+                      Footer: () => <div className="thread-bottom-spacer" aria-hidden="true" />,
                       Header: state.activePlan
                         ? () => (
                             <div className="thread-inner">
