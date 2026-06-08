@@ -53,6 +53,10 @@ export function Sidebar({
   importSources,
   activeName,
   workspaceDir,
+  sideOn = true,
+  ctxOn = true,
+  onToggleSide,
+  onToggleCtx,
   onNewChat,
   onLoadSession,
   onDeleteSession,
@@ -72,6 +76,10 @@ export function Sidebar({
   importSources: ExternalSessionApp[];
   activeName?: string;
   workspaceDir?: string;
+  sideOn?: boolean;
+  ctxOn?: boolean;
+  onToggleSide?: () => void;
+  onToggleCtx?: () => void;
   onNewChat: () => void;
   onLoadSession: (name: string) => void;
   onDeleteSession: (name: string) => void;
@@ -125,10 +133,38 @@ export function Sidebar({
   return (
     <aside className="sidebar">
       <div className="side-head">
-        <button type="button" className="new-btn" onClick={onNewChat}>
+        {onToggleSide ? (
+          <button
+            type="button"
+            className="icon-btn panel-toggle"
+            data-on={sideOn}
+            title={t("app.titlebar.sidebar")}
+            aria-label={t("app.titlebar.sidebar")}
+            onClick={onToggleSide}
+          >
+            <I.panel_l size={14} />
+          </button>
+        ) : null}
+        {onToggleCtx ? (
+          <button
+            type="button"
+            className="icon-btn panel-toggle"
+            data-on={ctxOn}
+            title={t("app.titlebar.contextPanel")}
+            aria-label={t("app.titlebar.contextPanel")}
+            onClick={onToggleCtx}
+          >
+            <I.panel_r size={14} />
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="new-btn new-btn--icon"
+          onClick={onNewChat}
+          title={t("sidebarPanel.newChat")}
+          aria-label={t("sidebarPanel.newChat")}
+        >
           <I.plus size={14} />
-          <span>{t("sidebarPanel.newChat")}</span>
-          <Shortcut keys={["mod", "N"]} />
         </button>
         <button
           type="button"

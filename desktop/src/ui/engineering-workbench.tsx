@@ -5,6 +5,26 @@ import { AgentExecutionFlowPanel } from "./agent-execution-flow";
 
 type Primitive = string | number | boolean | null;
 
+type EngineeringWorkbenchProps = {
+  onClose: () => void;
+  workspaceDir?: string;
+  onPickWorkspace?: () => void;
+  onInitRailwiseProject?: () => void;
+};
+
+function isAbsoluteEngineeringPath(path: string): boolean {
+  return path.startsWith("/") || path.startsWith("\\\\") || /^[A-Za-z]:[\\/]/.test(path);
+}
+
+function defaultEngineeringExportPath(workspaceDir: string | undefined, defaultPath: string): string {
+  const workspace = workspaceDir?.trim();
+  if (!workspace || isAbsoluteEngineeringPath(defaultPath)) return defaultPath;
+  const base = workspace.replace(/[\\/]+$/, "");
+  if (!base) return defaultPath;
+  const separator = base.includes("\\") && !base.includes("/") ? "\\" : "/";
+  return `${base}${separator}${defaultPath.replace(/^[\\/]+/, "")}`;
+}
+
 export type EngineeringStatus = "ok" | "warn" | "error";
 
 export const ENGINEERING_TOOL_IDS = [
@@ -71161,7 +71181,12 @@ function buildInitialEngineeringWorkbenchState(): {
   }
 }
 
-export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
+export function EngineeringWorkbench({
+  onClose,
+  workspaceDir,
+  onPickWorkspace,
+  onInitRailwiseProject,
+}: EngineeringWorkbenchProps) {
   const [initialState] = useState(() => buildInitialEngineeringWorkbenchState());
   const [activeId, setActiveId] = useState<EngineeringToolId>(initialState.activeId);
   const [inputFormat, setInputFormat] = useState<EngineeringInputFormat>(initialState.inputFormat);
@@ -73788,7 +73813,7 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
           import("@tauri-apps/api/core"),
         ]);
         const path = await save({
-          defaultPath,
+          defaultPath: defaultEngineeringExportPath(workspaceDir, defaultPath),
           filters: [{ name: filterName, extensions }],
         });
         if (!path) return;
@@ -73799,7 +73824,7 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
         setExportNotice(`${label}已复制`);
       }
     },
-    [],
+    [workspaceDir],
   );
 
   const exportBinaryFile = useCallback(
@@ -73810,7 +73835,7 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
           import("@tauri-apps/api/core"),
         ]);
         const path = await save({
-          defaultPath,
+          defaultPath: defaultEngineeringExportPath(workspaceDir, defaultPath),
           filters: [{ name: filterName, extensions }],
         });
         if (!path) return;
@@ -73821,7 +73846,7 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
         setExportNotice(`${label}导出失败，已复制 Base64`);
       }
     },
-    [],
+    [workspaceDir],
   );
 
   const exportProfessionalCsvSamplePack = useCallback(() => {
@@ -83904,16 +83929,40 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
       ]
     : [];
   const importPreflightFieldGroups = buildEngineeringImportPreflightFieldGroups(importSummary?.preflight);
+  const workspaceLabel = workspaceDir?.trim() || "未选择项目目录";
+  const hasWorkspaceDir = Boolean(workspaceDir?.trim());
 
   return (
     <div className="ewb-mask" role="dialog" aria-modal="true" aria-label="内业平差工作台">
       <div className="ewb-modal">
         <header className="ewb-head">
-          <div className="ewb-title">
-            <span className="ico">
-              <I.chart size={16} />
-            </span>
-            <span>内业平差工作台</span>
+          <button type="button" className="ewb-icon-btn ewb-close-btn" title="关闭" aria-label="关闭" onClick={onClose}>
+            <I.x size={14} />
+          </button>
+          <div className="ewb-title-group">
+            <div className="ewb-title">
+              <span className="ico">
+                <I.chart size={16} />
+              </span>
+              <span>内业平差工作台</span>
+            </div>
+            <div className="ewb-project-root" data-empty={hasWorkspaceDir ? undefined : "true"}>
+              <I.folder size={13} />
+              <span className="ewb-project-root-text">
+                <span>项目目录</span>
+                <strong title={workspaceLabel}>{workspaceLabel}</strong>
+              </span>
+              {onPickWorkspace ? (
+                <button type="button" className="ewb-project-root-action" onClick={onPickWorkspace}>
+                  选择
+                </button>
+              ) : null}
+              {!hasWorkspaceDir && onInitRailwiseProject ? (
+                <button type="button" className="ewb-project-root-action" onClick={onInitRailwiseProject}>
+                  新建
+                </button>
+              ) : null}
+            </div>
           </div>
           <div className="ewb-project-context" aria-label="当前工程">
             <label className="ewb-project-field">
@@ -84075,9 +84124,6 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
             <button type="button" className="ewb-btn primary" onClick={run}>
               <I.play size={13} />
               计算
-            </button>
-            <button type="button" className="ewb-icon-btn" title="关闭" aria-label="关闭" onClick={onClose}>
-              <I.x size={14} />
             </button>
           </div>
         </header>

@@ -103,7 +103,6 @@ import {
 import { getThreadMaxWidth } from "./ui/thread-layout";
 import { elideTranscriptMessages } from "./ui/transcript-elision";
 import { useAutoCollapse } from "./ui/useAutoCollapse";
-import { useAutoScroll } from "./ui/useAutoScroll";
 import { useDisableTextAssist } from "./ui/useDisableTextAssist";
 import { useResizable } from "./ui/useResizable";
 import { WorkdirPop } from "./ui/workdir-pop";
@@ -1393,6 +1392,19 @@ function defaultExportFilename(session: string): string {
   return `${safe}.md`;
 }
 
+function isAbsoluteLocalPath(path: string): boolean {
+  return path.startsWith("/") || path.startsWith("\\\\") || /^[A-Za-z]:[\\/]/.test(path);
+}
+
+function defaultWorkspaceFilePath(workspaceDir: string | undefined, filename: string): string {
+  const workspace = workspaceDir?.trim();
+  if (!workspace || isAbsoluteLocalPath(filename)) return filename;
+  const base = workspace.replace(/[\\/]+$/, "");
+  if (!base) return filename;
+  const separator = base.includes("\\") && !base.includes("/") ? "\\" : "/";
+  return `${base}${separator}${filename.replace(/^[\\/]+/, "")}`;
+}
+
 type TabAction = Action;
 type TabDispatcher = (action: TabAction) => void;
 
@@ -1506,8 +1518,8 @@ function TabRuntime({
   >(undefined);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
-  const threadInnerRef = useRef<HTMLDivElement>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const virtuosoScrollerRef = useRef<HTMLElement | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsPage, setSettingsPage] = useState<SettingsPageId>("general");
   const [mcpEditTarget, setMcpEditTarget] = useState<{ raw: string; nonce: number } | null>(null);
@@ -2121,12 +2133,28 @@ function TabRuntime({
   }, []);
 
   const [showJumpButton, setShowJumpButton] = useState(false);
-  const { scrollToBottom } = useAutoScroll(threadRef, threadInnerRef, state.busy, restoreScrollTop);
+  const scrollToLatest = useCallback(
+    (behavior: "auto" | "smooth" = "smooth") => {
+      if (messageItems.length === 0) return;
+      virtuosoRef.current?.scrollToIndex({
+        index: messageItems.length - 1,
+        align: "end",
+        behavior,
+      });
+      setShowJumpButton(false);
+    },
+    [messageItems.length],
+  );
+
+  useEffect(() => {
+    if (!state.busy || messageItems.length === 0) return;
+    scrollToLatest("auto");
+  }, [messageItems.length, scrollToLatest, state.busy]);
 
   // Persist the transcript scroll offset per session so a restart reopens
   // the conversation where the user left it (#1244).
   useEffect(() => {
-    const el = threadRef.current;
+    const el = virtuosoScrollerRef.current;
     const session = state.currentSession;
     if (!el || !session) return;
     const key = `reasonix.scroll.${session}`;
@@ -2467,7 +2495,7 @@ function TabRuntime({
     try {
       const filename = defaultExportFilename(session);
       const path = await saveDialog({
-        defaultPath: filename,
+        defaultPath: defaultWorkspaceFilePath(state.settings?.workspaceDir, filename),
         filters: [{ name: "Markdown", extensions: ["md"] }],
         title: t("app.toast.exportDialogTitle"),
       });
@@ -2478,7 +2506,7 @@ function TabRuntime({
       console.error("export failed", err);
       flashToast(t("app.toast.exportFailed", { error: String(err) }));
     }
-  }, [state.messages, session, flashToast]);
+  }, [state.messages, session, state.settings?.workspaceDir, flashToast]);
 
   const conversationCopy = useCallback(() => {
     const userLabel = t("app.exportUserLabel");
@@ -2550,6 +2578,10 @@ function TabRuntime({
           importSources={state.externalImportSources}
           activeName={state.currentSession}
           workspaceDir={state.settings?.workspaceDir}
+          sideOn={!sideCollapsed}
+          ctxOn={!ctxCollapsed}
+          onToggleSide={onToggleSide}
+          onToggleCtx={onToggleCtx}
           onNewChat={newChat}
           onLoadSession={(name) => {
             clearAbortDraft();
@@ -2602,7 +2634,6 @@ function TabRuntime({
                 busy={state.busy}
                 hasMessages={state.messages.length > 0}
                 onAbort={abort}
-                onNewChat={newChat}
                 onCopy={conversationCopy}
                 onExport={exportConversation}
                 onOpenWorkdir={(anchor) => {
@@ -2631,10 +2662,15 @@ function TabRuntime({
                   </div>
                 ) : (
                   <Virtuoso
+                    key={state.currentSession ?? "new-session"}
                     ref={virtuosoRef}
                     style={{ height: "100%" }}
                     totalCount={messageItems.length}
-                    followOutput={"auto"}
+                    initialScrollTop={restoreScrollTop() ?? 0}
+                    scrollerRef={(ref) => {
+                      virtuosoScrollerRef.current = ref instanceof HTMLElement ? ref : null;
+                    }}
+                    followOutput={(isAtBottom) => (isAtBottom || state.busy ? "smooth" : false)}
                     atBottomStateChange={(atBottom) => setShowJumpButton(!atBottom)}
                     components={{
                       Header: state.activePlan
@@ -2685,11 +2721,12 @@ function TabRuntime({
                 {showJumpButton ? (
                   <button
                     className="thread-jump-bottom"
-                    onClick={() => scrollToBottom(true)}
+                    onClick={() => scrollToLatest("smooth")}
                     title={t("app.jumpToBottom") ?? "Jump to bottom"}
                     aria-label={t("app.jumpToBottom") ?? "Jump to bottom"}
                   >
                     <I.chev size={16} />
+                    <span>最新</span>
                   </button>
                 ) : null}
               </div>
@@ -2908,7 +2945,12 @@ function TabRuntime({
 
         {engineeringWorkbenchOpen ? (
           <Suspense fallback={null}>
-            <EngineeringWorkbench onClose={() => setEngineeringWorkbenchOpen(false)} />
+            <EngineeringWorkbench
+              workspaceDir={state.settings?.workspaceDir}
+              onPickWorkspace={pickWorkspace}
+              onInitRailwiseProject={() => setRailwiseProjectOpen(true)}
+              onClose={() => setEngineeringWorkbenchOpen(false)}
+            />
           </Suspense>
         ) : null}
 
@@ -3191,15 +3233,17 @@ function TitleBar({
             </button>
           </div>
         ) : null}
-        <button
-          type="button"
-          className="iconbtn"
-          data-on={sideOn}
-          title={localizeShortcutText(t("app.titlebar.sidebar"))}
-          onClick={onToggleSide}
-        >
-          <I.panel_l size={14} />
-        </button>
+        {!sideOn ? (
+          <button
+            type="button"
+            className="iconbtn"
+            data-on={sideOn}
+            title={localizeShortcutText(t("app.titlebar.sidebar"))}
+            onClick={onToggleSide}
+          >
+            <I.panel_l size={14} />
+          </button>
+        ) : null}
         {showTitlebarIdentity ? (
           <div className="tb-meta" data-tauri-drag-region>
             <div className="brand" data-tauri-drag-region>
@@ -3221,15 +3265,17 @@ function TitleBar({
 
       {/* right: panel toggles + more + window controls */}
       <div className="tb-right">
-        <button
-          type="button"
-          className="iconbtn"
-          data-on={ctxOn}
-          title={t("app.titlebar.contextPanel")}
-          onClick={onToggleCtx}
-        >
-          <I.panel_r size={14} />
-        </button>
+        {!sideOn ? (
+          <button
+            type="button"
+            className="iconbtn"
+            data-on={ctxOn}
+            title={t("app.titlebar.contextPanel")}
+            onClick={onToggleCtx}
+          >
+            <I.panel_r size={14} />
+          </button>
+        ) : null}
 
         <div ref={moreWrapRef} style={{ position: "relative" }}>
           <button
@@ -3446,7 +3492,6 @@ function MainHead({
   busy,
   hasMessages,
   onAbort,
-  onNewChat,
   onCopy,
   onExport,
   onOpenWorkdir,
@@ -3457,7 +3502,6 @@ function MainHead({
   busy: boolean;
   hasMessages: boolean;
   onAbort: () => void;
-  onNewChat: () => void;
   onCopy: () => void;
   onExport: () => void;
   onOpenWorkdir: (anchor: { top?: number; bottom?: number; left: number }) => void;
@@ -3515,9 +3559,6 @@ function MainHead({
         title={t("app.header.exportMd")}
       >
         <I.download size={12} /> {t("app.header.export")}
-      </button>
-      <button type="button" className="h-btn" onClick={onNewChat}>
-        <I.plus size={12} /> {t("app.header.newChat")}
       </button>
       {busy ? (
         <button type="button" className="h-btn primary" onClick={onAbort}>

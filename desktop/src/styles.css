@@ -1043,13 +1043,13 @@ html[data-platform="macos"] .titlebar .tb-left {
 }
 
 .side-head {
-  padding: 10px 12px 8px;
+  padding: 10px 10px 8px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .side-head .new-btn {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   height: 30px;
   display: inline-flex;
@@ -1063,6 +1063,12 @@ html[data-platform="macos"] .titlebar .tb-left {
   background: var(--accent);
   color: oklch(99% 0 0);
   box-shadow: var(--shadow-sm);
+}
+.side-head .new-btn--icon {
+  flex: 0 0 auto;
+  width: 30px;
+  justify-content: center;
+  padding: 0;
 }
 .side-head .new-btn:hover {
   background: var(--accent-strong);
@@ -1134,6 +1140,11 @@ html[data-platform="macos"] .titlebar .tb-left {
 .side-head .icon-btn:hover {
   color: var(--fg);
   background: var(--card-hover);
+}
+.side-head .panel-toggle[data-on="true"] {
+  color: var(--accent);
+  border-color: color-mix(in oklab, var(--accent) 46%, var(--border));
+  background: var(--accent-soft);
 }
 
 .side-workspace {
@@ -2307,16 +2318,17 @@ html:not([data-platform="macos"]) .shortcut kbd[data-key="mod"] {
 
 /* Jump-to-bottom button — shown when user has scrolled up during streaming */
 .thread-jump-bottom {
-  position: sticky;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: absolute;
+  right: 24px;
+  bottom: 18px;
   z-index: 10;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  gap: 6px;
+  min-width: 44px;
   height: 36px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--bg);
@@ -2329,7 +2341,11 @@ html:not([data-platform="macos"]) .shortcut kbd[data-key="mod"] {
 .thread-jump-bottom:hover {
   opacity: 1;
   background: var(--bg-strong);
-  transform: translateX(-50%) scale(1.05);
+  transform: translateY(-1px);
+}
+.thread-jump-bottom span {
+  font-size: 12px;
+  font-weight: 600;
 }
 [data-theme="light"] .thread-jump-bottom {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -8852,12 +8868,12 @@ html[data-platform="macos"] .splash {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: clamp(8px, 2vw, 24px);
 }
 
 .ewb-modal {
-  width: min(1180px, 100%);
-  height: min(820px, 100%);
+  width: min(1280px, calc(100vw - 24px));
+  height: min(860px, calc(100vh - 24px));
   display: flex;
   flex-direction: column;
   background: var(--panel, #161616);
@@ -8868,13 +8884,20 @@ html[data-platform="macos"] .splash {
 }
 
 .ewb-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(230px, 0.34fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px 14px;
+  padding: 12px 54px 12px 16px;
   border-bottom: 1px solid var(--border, #2a2a2a);
-  flex-wrap: wrap;
+}
+
+.ewb-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .ewb-title {
@@ -8883,6 +8906,60 @@ html[data-platform="macos"] .splash {
   gap: 8px;
   font-weight: 600;
   color: var(--text, #eee);
+}
+
+.ewb-project-root {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 8px;
+  background: var(--panel-2, #1f1f1f);
+  color: var(--muted, #9aa0a6);
+}
+
+.ewb-project-root[data-empty="true"] {
+  border-color: rgba(255, 190, 91, 0.36);
+  background: rgba(255, 190, 91, 0.06);
+}
+
+.ewb-project-root > svg {
+  color: var(--muted, #9aa0a6);
+}
+
+.ewb-project-root-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+  font-size: 10px;
+}
+
+.ewb-project-root-text strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text, #eee);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ewb-project-root-action {
+  min-height: 24px;
+  padding: 0 7px;
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 6px;
+  background: var(--panel, #161616);
+  color: var(--text, #eee);
+  font-size: 11px;
+}
+
+.ewb-project-root-action:hover {
+  border-color: var(--accent, #ff8a4c);
 }
 
 .ewb-project-context {
@@ -8894,9 +8971,8 @@ html[data-platform="macos"] .splash {
     minmax(168px, 1.15fr)
     auto;
   gap: 8px;
-  flex: 1 1 720px;
-  min-width: min(100%, 320px);
-  max-width: 850px;
+  min-width: 0;
+  max-width: none;
 }
 
 .ewb-project-field {
@@ -8933,6 +9009,19 @@ html[data-platform="macos"] .splash {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  min-width: 0;
+}
+
+.ewb-head-actions {
+  grid-column: 1 / -1;
+  padding-right: 0;
+}
+
+.ewb-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 2;
 }
 
 .ewb-format-control {
@@ -9091,7 +9180,7 @@ html[data-platform="macos"] .splash {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.2fr);
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
   gap: 14px;
   padding: 14px;
 }
@@ -9129,14 +9218,14 @@ html[data-platform="macos"] .splash {
 .ewb-indoor-workflow-list {
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 10px;
 }
 
 .ewb-indoor-workflow {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(150px, 0.9fr) minmax(0, 1fr);
+  grid-template-columns: minmax(140px, 0.85fr) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   border: 1px solid var(--border, #2a2a2a);
@@ -11515,9 +11604,66 @@ html[data-platform="macos"] .splash {
   font-size: 12px;
 }
 
+@media (max-width: 1180px) {
+  .ewb-head {
+    grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+  }
+
+  .ewb-project-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ewb-project-save {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .ewb-main {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .ewb-indoor-workflows {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 980px) {
   .ewb-mask {
-    padding: 12px;
+    padding: 8px;
+  }
+
+  .ewb-modal {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+  }
+
+  .ewb-head {
+    grid-template-columns: 1fr;
+    padding: 12px 50px 12px 12px;
+  }
+
+  .ewb-project-root {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .ewb-project-root-action {
+    padding: 0 6px;
+  }
+
+  .ewb-project-context {
+    grid-template-columns: 1fr;
+  }
+
+  .ewb-head-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .ewb-head-actions > * {
+    flex: 0 0 auto;
   }
 
   .ewb-shell,
@@ -11544,10 +11690,36 @@ html[data-platform="macos"] .splash {
   .ewb-nav {
     border-right: 0;
     border-bottom: 1px solid var(--border, #2a2a2a);
-    max-height: 210px;
+    max-height: 180px;
+  }
+
+  .ewb-tool-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 
   .ewb-editor {
     min-height: 260px;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 980px) {
+  .ewb-project-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 861px) and (max-width: 980px) {
+  .ewb-project-context {
+    grid-template-columns:
+      minmax(140px, 1.25fr)
+      minmax(82px, 0.65fr)
+      minmax(120px, 1fr)
+      minmax(150px, 1.15fr)
+      auto;
+  }
+
+  .ewb-project-save {
+    grid-column: auto;
   }
 }

@@ -2003,6 +2003,30 @@ describe("EngineeringWorkbench archive ZIP history UI", () => {
     expect(screen.getByText("专业 CSV 样表包已导出")).toBeTruthy();
   });
 
+  it("uses the selected project folder as the default export location", async () => {
+    installLocalStorageStub();
+    vi.mocked(save).mockResolvedValue("/projects/沪杭铁路/railwise-professional-csv-samples.zip");
+    vi.mocked(invoke).mockImplementation((command: string, args?: unknown) => {
+      if (command === "list_engineering_engines") return Promise.resolve([]);
+      if (command === "write_binary_file") return Promise.resolve(args);
+      return Promise.reject(new Error(`unexpected invoke: ${command}`));
+    });
+
+    render(<EngineeringWorkbench workspaceDir="/projects/沪杭铁路" onClose={vi.fn()} />);
+
+    expect(screen.getByText("项目目录")).toBeTruthy();
+    expect(screen.getByText("/projects/沪杭铁路")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "样表包" }));
+
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith({
+        defaultPath: "/projects/沪杭铁路/railwise-professional-csv-samples.zip",
+        filters: [{ name: "Railwise 专业 CSV 样表包", extensions: ["zip"] }],
+      }),
+    );
+  });
+
   it("exports the current engineering result as an XLSX workbook from the result panel", async () => {
     installLocalStorageStub();
     vi.mocked(save).mockResolvedValue("/tmp/railwise-result-workbook.xlsx");
