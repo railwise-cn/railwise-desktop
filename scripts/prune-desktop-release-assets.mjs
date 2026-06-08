@@ -93,33 +93,70 @@ function releaseNotes() {
   ].join("\n");
 }
 
+function newestAsset(assets) {
+  return [...assets].sort((left, right) => {
+    return new Date(right.updated_at ?? right.created_at ?? 0) - new Date(left.updated_at ?? left.created_at ?? 0);
+  })[0];
+}
+
 const release = await githubJson(releaseApi);
-const kept = [];
+const groups = new Map();
+const unwantedAssets = [];
 
 for (const asset of release.assets) {
   const classification = classifyAsset(asset.name);
 
   if (!classification.keep) {
-    console.log(`delete ${asset.name}`);
-    if (!dryRun) {
-      await githubJson(asset.url, { method: "DELETE" });
-    }
+    unwantedAssets.push(asset);
     continue;
   }
 
-  kept.push(classification.label);
+  const group = groups.get(classification.desiredName) ?? {
+    label: classification.label,
+    desiredName: classification.desiredName,
+    assets: [],
+  };
+  group.assets.push(asset);
+  groups.set(classification.desiredName, group);
+}
 
-  if (asset.name !== classification.desiredName) {
-    console.log(`rename ${asset.name} -> ${classification.desiredName}`);
+const kept = [];
+
+for (const asset of unwantedAssets) {
+  console.log(`delete ${asset.name}`);
+  if (!dryRun) {
+    await githubJson(asset.url, { method: "DELETE" });
+  }
+}
+
+for (const group of groups.values()) {
+  const uploadedAssets = group.assets.filter((asset) => asset.name !== group.desiredName);
+  const preferred = newestAsset(uploadedAssets.length > 0 ? uploadedAssets : group.assets);
+
+  for (const asset of group.assets) {
+    if (asset.id === preferred.id) {
+      continue;
+    }
+
+    console.log(`delete duplicate ${asset.name}`);
     if (!dryRun) {
-      await githubJson(asset.url, {
+      await githubJson(asset.url, { method: "DELETE" });
+    }
+  }
+
+  kept.push(group.label);
+
+  if (preferred.name !== group.desiredName) {
+    console.log(`rename ${preferred.name} -> ${group.desiredName}`);
+    if (!dryRun) {
+      await githubJson(preferred.url, {
         method: "PATCH",
-        body: JSON.stringify({ name: classification.desiredName }),
+        body: JSON.stringify({ name: group.desiredName }),
         headers: { "Content-Type": "application/json" },
       });
     }
   } else {
-    console.log(`keep ${asset.name}`);
+    console.log(`keep ${preferred.name}`);
   }
 }
 
