@@ -7947,7 +7947,7 @@ const INDOOR_ADJUSTMENT_WORKFLOWS: IndoorAdjustmentWorkflowDefinition[] = [
     title: "导线内业",
     badge: "平面控制",
     steps: ["录入", "检查", "平差", "成果"],
-    actionLabel: "载入导线样表并计算",
+    actionLabel: "导入导线样表并计算",
   },
   {
     id: "leveling_indoor",
@@ -7956,7 +7956,7 @@ const INDOOR_ADJUSTMENT_WORKFLOWS: IndoorAdjustmentWorkflowDefinition[] = [
     title: "水准内业",
     badge: "高程控制",
     steps: ["测段", "汇总", "平差", "示意图"],
-    actionLabel: "载入水准样表并计算",
+    actionLabel: "导入水准样表并计算",
   },
   {
     id: "cp23_level_resurvey",
@@ -7965,7 +7965,7 @@ const INDOOR_ADJUSTMENT_WORKFLOWS: IndoorAdjustmentWorkflowDefinition[] = [
     title: "CP2/CP3 水准复测",
     badge: "复测检查",
     steps: ["基准", "复测", "高差之差", "成果"],
-    actionLabel: "载入复测样表并计算",
+    actionLabel: "导入复测样表并计算",
   },
 ];
 
@@ -72800,12 +72800,12 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
       );
       if (sample) {
         loadProfessionalCsvSample(sample);
-        setExportNotice(`${workflow.title}已载入样表并完成计算`);
+        setExportNotice(`${workflow.title}已导入样表并完成计算`);
         return;
       }
       setActiveId(workflow.toolId);
       loadSample(workflow.toolId, "csv");
-      setExportNotice(`${workflow.title}已载入输入模板并完成计算`);
+      setExportNotice(`${workflow.title}已导入输入模板并完成计算`);
     },
     [loadProfessionalCsvSample, loadSample],
   );
