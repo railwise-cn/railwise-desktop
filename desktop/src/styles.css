@@ -9129,7 +9129,7 @@ html[data-platform="macos"] .splash {
 .ewb-indoor-workflow {
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(120px, 0.7fr) minmax(160px, 1fr) minmax(130px, 0.65fr);
+  grid-template-columns: minmax(150px, 0.9fr) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   border: 1px solid var(--border, #2a2a2a);
@@ -9199,16 +9199,6 @@ html[data-platform="macos"] .splash {
   font-size: 11px;
   line-height: 1;
   padding: 5px 7px;
-}
-
-.ewb-indoor-workflow-action {
-  min-width: 0;
-  color: #7bd88f;
-  font-size: 12px;
-  text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .ewb-indoor-check-panel {
@@ -11414,11 +11404,6 @@ html[data-platform="macos"] .splash {
   .ewb-indoor-edit-row.known,
   .ewb-indoor-edit-row.observation {
     min-width: 620px;
-  }
-
-  .ewb-indoor-workflow-action {
-    text-align: left;
-    white-space: normal;
   }
 
   .ewb-nav {

@@ -3091,6 +3091,8 @@ function TitleBar({
   const [isMaximized, setIsMaximized] = useState(false);
   const moreWrapRef = useRef<HTMLDivElement>(null);
   const isMac = document.documentElement.dataset.platform === "macos";
+  const showCustomMacControls = isMac && !isTauriDesktopRuntime();
+  const showCustomWindowsControls = !isMac && !isTauriDesktopRuntime();
 
   useEffect(() => {
     if (!isTauriDesktopRuntime()) return;
@@ -3137,7 +3139,7 @@ function TitleBar({
     <header className="titlebar">
       {/* left: sidebar toggle + brand */}
       <div className="tb-left">
-        {isMac ? (
+        {showCustomMacControls ? (
           <div className="mac-controls" aria-label={t("app.titlebar.windowControls")}>
             <button
               type="button"
@@ -3326,7 +3328,7 @@ function TitleBar({
         </div>
 
         {/* window controls — use onMouseDown+stopPropagation so the drag region doesn't swallow the event */}
-        {isMac ? null : (
+        {showCustomWindowsControls ? (
           <div className="win-controls">
             <button
               type="button"
@@ -3362,7 +3364,7 @@ function TitleBar({
               <WinClose />
             </button>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );

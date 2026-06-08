@@ -84101,7 +84101,6 @@ export function EngineeringWorkbench({ onClose }: { onClose: () => void }) {
                         <span key={step}>{step}</span>
                       ))}
                     </span>
-                    <span className="ewb-indoor-workflow-action">{workflow.actionLabel}</span>
                   </button>
                 ))}
               </div>

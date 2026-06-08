@@ -2,16 +2,16 @@
   "app": {
     "windows": [
       {
-        "title": "Railwise",
+        "title": "睿威智测 RAILWISE DeepSeek版",
         "width": 1024,
         "height": 720,
         "minWidth": 480,
         "minHeight": 320,
         "center": true,
         "resizable": true,
-        "decorations": false,
-        "transparent": true,
-        "backgroundColor": "#00000000"
+        "decorations": true,
+        "transparent": false,
+        "backgroundColor": "#0b0b0b"
       }
     ]
   },
